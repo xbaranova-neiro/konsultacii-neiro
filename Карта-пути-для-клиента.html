@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Как изменится твоя жизнь, если ты сегодня начнёшь изучать нейросети</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #e8edf3;
+      --bg-elevated: #ffffff;
+      --surface: rgba(255,255,255,.97);
+      --text: #0a0f1a;
+      --text-muted: #334155;
+      --text-soft: #475569;
+      --accent: #9a3412;
+      --accent-dim: rgba(154,52,18,.16);
+      --path: #0d9488;
+      --path-dim: rgba(13,148,136,.2);
+      --success: #047857;
+      --success-dim: rgba(4,120,87,.14);
+      --danger: #b91c1c;
+      --danger-dim: rgba(185,28,28,.1);
+      --border: rgba(15,23,42,.18);
+      --border-strong: rgba(15,23,42,.28);
+      --border-focus: rgba(154,52,18,.55);
+      --road-asphalt: #5b6578;
+      --road-edge: #1e293b;
+      --road-dash: #f8fafc;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Source Serif 4', Georgia, serif;
+      --radius: 14px;
+      --radius-lg: 20px;
+      --shadow-glow: 0 4px 24px rgba(154,52,18,.1);
+      --shadow-card: 0 4px 20px rgba(15,23,42,.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      min-height: 100vh; background: var(--bg); color: var(--text);
+      padding: 0 0 60px; line-height: 1.55; overflow-x: hidden;
+      font-size: 1.05rem;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background:
+        radial-gradient(1.2px 1.2px at 8% 12%, rgba(15,23,42,.12) 0%, transparent 100%),
+        radial-gradient(1.2px 1.2px at 22% 38%, rgba(15,23,42,.08) 0%, transparent 100%),
+        radial-gradient(1.2px 1.2px at 37% 6%,  rgba(15,23,42,.1) 0%, transparent 100%),
+        radial-gradient(1.2px 1.2px at 53% 48%, rgba(15,23,42,.06) 0%, transparent 100%),
+        radial-gradient(2px 2px at 49% 22%, var(--accent-dim) 0%, transparent 100%),
+        radial-gradient(2px 2px at 78% 8%,  var(--path-dim) 0%, transparent 100%);
+      pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 45% at 12% 5%, rgba(254,243,199,.45) 0%, transparent 55%),
+        radial-gradient(ellipse 55% 35% at 88% 88%, rgba(204,251,241,.5) 0%, transparent 55%);
+      pointer-events: none; z-index: 0;
+    }
+    /* Grain overlay for depth */
+    body {
+      position: relative;
+    }
+    body .grain {
+      position: fixed; inset: 0; z-index: 1;
+      opacity: .055;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .wrap { max-width: 740px; margin: 0 auto; padding: 0 16px; position: relative; z-index: 2; }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes gradient-shift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+    @keyframes pin-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.09)} }
+    @keyframes float-up { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes shine { 0%{left:-100%} 100%{left:160%} }
+    @keyframes glow-ring { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:.6;transform:scale(1.15)} }
+    @keyframes count-up { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes road-draw { from{stroke-dashoffset:var(--road-len)} to{stroke-dashoffset:0} }
+
+    /* ===== WELCOME OVERLAY ===== */
+    .welcome-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #f8fafc;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease;
+      flex-direction: column; gap: 0;
+    }
+    .welcome-overlay.fade-out { opacity: 0; pointer-events: none; }
+    .welcome-inner { text-align: center; padding: 32px; }
+    .welcome-spark { font-size: 36px; margin-bottom: 20px; animation: pin-pulse 1.5s ease infinite; }
+    .welcome-name-line {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 8vw, 52px); font-weight: 800; line-height: 1.1;
+      background: linear-gradient(135deg, #0f172a 0%, var(--accent) 45%, var(--path) 100%);
+      background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; animation: gradient-shift 3s ease infinite;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s ease 0.3s, transform 0.6s ease 0.3s;
+    }
+    .welcome-name-line.visible { opacity: 1; transform: translateY(0); }
+    .welcome-tagline {
+      font-size: 16px; color: var(--text-muted); margin-top: 12px;
+      opacity: 0; transition: opacity 0.6s ease 0.8s;
+    }
+    .welcome-tagline.visible { opacity: 1; }
+    .welcome-sub {
+      font-size: 13px; color: var(--text-soft); margin-top: 6px;
+      opacity: 0; transition: opacity 0.6s ease 1.1s;
+    }
+    .welcome-sub.visible { opacity: 1; }
+    .welcome-bar-wrap {
+      width: 200px; height: 3px; background: var(--border);
+      border-radius: 2px; margin: 28px auto 0; overflow: hidden;
+      opacity: 0; transition: opacity 0.4s ease 1.4s;
+    }
+    .welcome-bar-wrap.visible { opacity: 1; }
+    .welcome-bar-fill {
+      height: 100%; width: 0;
+      background: linear-gradient(90deg, var(--accent), var(--path));
+      border-radius: 2px; transition: width 2s ease 1.6s;
+    }
+    .welcome-bar-fill.go { width: 100%; }
+
+    /* ===== MANAGER PANEL ===== */
+    .manager-panel {
+      font-family: var(--font-display);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 16px 18px;
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 2px 16px rgba(15,23,42,.06);
+    }
+    .manager-panel-inner { max-width: 740px; margin: 0 auto; }
+    .panel-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+    .manager-panel-title {
+      font-size: 11px; font-weight: 800; color: var(--accent);
+      text-transform: uppercase; letter-spacing: .12em;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .manager-panel-title::before {
+      content: ''; display: inline-block; width: 7px; height: 7px;
+      background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent-dim);
+      animation: pin-pulse 2s ease-in-out infinite;
+    }
+    .copy-link-btn {
+      font-size: 11px; font-weight: 700; padding: 6px 14px;
+      background: linear-gradient(135deg, #d97706, #b45309);
+      color: #fff; border: none; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      box-shadow: 0 2px 12px var(--accent-dim); transition: all .2s;
+    }
+    .copy-link-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(228,168,83,.35); }
+    .copy-link-btn.copied { background: linear-gradient(135deg, var(--success), #059669); color: #fff; }
+    .panel-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; align-items: center; }
+    .panel-label { font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .08em; min-width: 68px; flex-shrink: 0; }
+    .pill-group { display: flex; flex-wrap: wrap; gap: 4px; }
+    .pill {
+      font-size: 11px; font-weight: 600; padding: 4px 11px;
+      border-radius: 20px; border: 1px solid var(--border);
+      background: #fff; color: var(--text-muted);
+      cursor: pointer; transition: all .18s ease; user-select: none;
+    }
+    .pill:hover { border-color: var(--border-focus); color: var(--accent); }
+    .pill.active { background: #fffbeb; border-color: var(--accent); color: var(--accent); box-shadow: 0 1px 4px var(--accent-dim); }
+    .panel-inputs-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .panel-input {
+      font-family: var(--font-body);
+      font-weight: 600; font-size: 12px;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); padding: 6px 11px;
+      outline: none; transition: border-color .2s;
+    }
+    .panel-input:focus { border-color: var(--accent); }
+    .panel-input::placeholder { color: #94a3b8; font-weight: 400; }
+    .panel-input.name-input { width: 170px; }
+    .panel-input.contact-input { width: 190px; }
+    .panel-input.date-input { width: 140px; }
+    .panel-textarea {
+      font-family: var(--font-body);
+      font-size: 12px;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); padding: 6px 11px;
+      outline: none; resize: none; height: 48px; line-height: 1.4; flex: 1; min-width: 150px;
+    }
+    .panel-textarea:focus { border-color: var(--border-focus); }
+    .panel-textarea::placeholder { color: #94a3b8; font-size: 11px; }
+    .panel-link-preview {
+      font-size: 10px; color: var(--text-soft); margin-top: 6px;
+      word-break: break-all; font-family: monospace;
+    }
+    .panel-top-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .panel-hide-btn {
+      font-family: var(--font-display);
+      font-size: 11px; font-weight: 700; padding: 6px 12px;
+      background: #f1f5f9; color: var(--text-muted);
+      border: 2px solid var(--border); border-radius: 8px; cursor: pointer;
+      transition: all .2s ease;
+    }
+    .panel-hide-btn:hover { background: #e2e8f0; color: var(--text); border-color: var(--text-soft); }
+    .manager-panel.is-hidden { display: none !important; }
+    .manager-panel-reopen-strip {
+      font-family: var(--font-display);
+      position: sticky; top: 0; z-index: 100;
+      background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+      border-bottom: 2px solid var(--border);
+      padding: 10px 16px; text-align: center;
+      box-shadow: 0 2px 12px rgba(15,23,42,.06);
+    }
+    .manager-panel-reopen-strip[hidden] { display: none !important; }
+    .manager-panel-reopen-btn {
+      font-family: var(--font-display);
+      font-size: 12px; font-weight: 800; padding: 8px 20px;
+      background: linear-gradient(135deg, #d97706, #b45309);
+      color: #fff; border: none; border-radius: 10px; cursor: pointer;
+      box-shadow: 0 2px 10px var(--accent-dim);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .manager-panel-reopen-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(180,83,9,.3); }
+
+    /* ===== HERO ===== */
+    .hero { text-align: center; padding: 44px 16px 30px; position: relative; animation: float-up .7s ease both; }
+    .hero::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent 15%, var(--accent) 50%, transparent 85%);
+      opacity: .4; pointer-events: none;
+    }
+    .hero-glow { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 700px; height: 300px; background: radial-gradient(ellipse 80% 60% at 50% 25%, var(--accent-dim) 0%, transparent 70%); pointer-events: none; }
+    .client-name-display { font-family: var(--font-display); display: block; font-size: 16px; font-weight: 700; color: var(--accent); letter-spacing: .02em; margin-bottom: 10px; min-height: 20px; }
+    .client-name-display:empty { display: none; }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(19px, 5vw, 28px); font-weight: 800; line-height: 1.22; margin: 0 0 14px;
+      background: linear-gradient(135deg, #0f172a 0%, var(--accent) 42%, var(--path) 100%);
+      background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; animation: gradient-shift 6s ease infinite;
+    }
+    .hero-sub { font-size: 1rem; color: var(--text-muted); max-width: 520px; margin: 0 auto; line-height: 1.65; font-weight: 500; }
+
+    /* ===== BEFORE/AFTER ===== */
+    .transform-block { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; margin-bottom: 20px; animation: float-up .7s ease both; animation-delay: .1s; }
+    .transform-side { border-radius: 16px; padding: 15px 14px; border: 1px solid var(--border); backdrop-filter: blur(10px); background: #fff; }
+    .transform-side.before { background: #fef2f2; border-color: #fecaca; }
+    .transform-side.after  { background: #ecfdf5; border-color: #a7f3d0; }
+    .transform-label { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 9px; }
+    .before .transform-label { color: #b91c1c; } .after .transform-label { color: #047857; }
+    .transform-item { font-size: 11.5px; margin: 6px 0; display: flex; align-items: flex-start; gap: 6px; line-height: 1.4; }
+    .before .transform-item { color: #7f1d1d; } .before .transform-item::before { content: '—'; color: #dc2626; flex-shrink: 0; font-weight: 700; }
+    .after  .transform-item { color: #14532d; } .after  .transform-item::before { content: '✓'; color: #059669; flex-shrink: 0; font-weight: 800; }
+    .transform-arrow { font-size: 24px; color: var(--accent); text-align: center; flex-shrink: 0; filter: drop-shadow(0 0 10px var(--accent-dim)); }
+
+    /* ===== STATS ===== */
+    .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; animation: float-up .7s ease both; animation-delay: .2s; }
+    .stat-card { background: #fff; border-radius: 16px; padding: 18px 12px 14px; text-align: center; border: 2px solid var(--border); backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: var(--shadow-card); }
+    .stat-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(145deg, var(--accent-dim) 0%, transparent 60%); pointer-events: none; }
+    .stat-num { font-size: clamp(24px, 5.5vw, 36px); font-weight: 900; line-height: 1; margin-bottom: 6px; }
+    .stat-num.gold  { background: linear-gradient(135deg,#fbbf24,#f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-num.blue  { background: linear-gradient(135deg,#93c5fd,#3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-num.green { background: linear-gradient(135deg,#6ee7b7,#10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+    .stat-source { font-size: 9px; color: var(--text-soft); margin-top: 4px; }
+
+    /* ===== MARKET QUOTE ===== */
+    .market-quote {
+      text-align: center; font-size: 14px; font-weight: 600; font-style: italic;
+      color: var(--accent); margin: 0 0 20px;
+      padding: 14px 24px;
+      background: var(--accent-dim);
+      border-left: 3px solid var(--accent); border-right: 3px solid var(--accent);
+      border-radius: var(--radius); line-height: 1.6;
+    }
+
+    /* ===== INCOME CALCULATOR ===== */
+    .calc-card {
+      background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+      border: 2px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      padding: 22px 22px 24px; margin-bottom: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-glow), var(--shadow-card);
+      animation: float-up .7s ease both; animation-delay: .25s;
+    }
+    .calc-title { font-family: var(--font-display); font-size: 14px; font-weight: 800; color: var(--accent); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .calc-title::before { content: '₽'; font-size: 18px; color: var(--accent); }
+    .calc-sub { font-size: 11px; color: #475569; margin-bottom: 18px; }
+    .calc-slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .calc-slider {
+      flex: 1; -webkit-appearance: none; appearance: none;
+      height: 5px; border-radius: 3px; outline: none; cursor: pointer;
+      background: linear-gradient(90deg, var(--accent) var(--pct, 25%), var(--border) var(--pct, 25%));
+    }
+    .calc-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #c9902e); box-shadow: 0 0 12px var(--accent-dim); cursor: pointer; }
+    .calc-slider::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #c9902e); border: none; cursor: pointer; }
+    .calc-hours { font-size: 22px; font-weight: 900; color: var(--text); min-width: 70px; text-align: right; }
+    .calc-hours span { font-size: 13px; font-weight: 400; color: var(--text-soft); }
+    .calc-results { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .calc-result {
+      background: #f1f5f9; border-radius: 12px; padding: 14px 12px;
+      text-align: center; border: 1px solid var(--border);
+      transition: all .3s ease;
+    }
+    .calc-result.highlight { border-color: var(--border-focus); box-shadow: 0 0 16px var(--accent-dim); }
+    .calc-result-period { font-size: 10px; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+    .calc-result-value { font-size: clamp(17px, 4vw, 24px); font-weight: 900; color: #b45309; line-height: 1; animation: count-up .3s ease; }
+    .calc-result-value.green { color: #047857; }
+    .calc-result-note { font-size: 10px; color: #475569; margin-top: 5px; line-height: 1.3; }
+
+    /* ===== PROFILE ===== */
+    .profile-card { background: rgba(20,184,166,.08); border: 1px solid var(--path-dim); border-radius: var(--radius); padding: 15px 18px; margin-bottom: 14px; backdrop-filter: blur(10px); }
+    .profile-card h2 { font-family: var(--font-display); font-size: 11px; font-weight: 800; color: var(--path); text-transform: uppercase; letter-spacing: .1em; margin: 0 0 10px; }
+    .profile-row { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; }
+    .profile-row span strong { color: var(--path); }
+
+    /* ===== PERSONAL ACCENT ===== */
+    .personal-accent { background: linear-gradient(135deg, var(--accent-dim) 0%, rgba(228,168,83,.06) 100%); border: 1px solid var(--border-focus); border-radius: var(--radius); padding: 13px 18px; margin-bottom: 14px; font-size: 0.875rem; color: var(--text); backdrop-filter: blur(8px); }
+    .personal-accent strong { color: var(--accent); }
+
+    /* ===== FIRST STEPS ===== */
+    .first-steps-card { background: linear-gradient(135deg, var(--success-dim) 0%, rgba(52,211,153,.06) 100%); border: 1px solid rgba(52,211,153,.35); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 24px; }
+    .first-steps-card h2 { font-family: var(--font-display); font-size: 14px; font-weight: 700; margin: 0 0 12px; color: var(--success); display: flex; align-items: center; gap: 10px; }
+    .first-steps-card h2::before { content: '✓'; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: linear-gradient(135deg, #059669, #047857); color: #fff; border-radius: 50%; font-size: 13px; font-weight: 800; flex-shrink: 0; box-shadow: 0 2px 8px var(--success-dim); }
+    .step-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+    .step-item:last-child { margin-bottom: 0; }
+    .step-num { flex-shrink: 0; width: 28px; height: 28px; border: 2px solid #059669; border-radius: 50%; background: #ecfdf5; color: #047857; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+    .step-text { flex: 1; color: #14532d; font-size: 13px; line-height: 1.55; }
+
+    /* ===== PROGRESS HEADER ===== */
+    .progress-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+      background: #fff; border-radius: 12px; padding: 12px 16px;
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-card);
+    }
+    .progress-header-label { font-size: 11px; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; flex-shrink: 0; }
+    .progress-dots { display: flex; gap: 6px; flex: 1; }
+    .progress-dot {
+      height: 6px; flex: 1; border-radius: 3px;
+      background: #e2e8f0;
+      transition: background .4s ease, box-shadow .4s ease;
+    }
+    .progress-dot.done { background: linear-gradient(90deg, #059669, #0d9488); box-shadow: 0 1px 4px rgba(5,150,105,.35); }
+    .progress-count { font-size: 12px; font-weight: 700; color: #047857; flex-shrink: 0; min-width: 48px; text-align: right; }
+
+    /* ===== MAP CANVAS ===== */
+    .map-canvas {
+      background: linear-gradient(165deg, #ffffff 0%, #f8fafc 50%, #fffbeb 100%);
+      border: 2px solid var(--border-strong);
+      border-radius: 24px;
+      padding: 28px 18px 36px; position: relative;
+      box-shadow: 0 8px 40px rgba(15,23,42,.1), inset 0 0 0 1px rgba(255,255,255,.8);
+      overflow: hidden; animation: float-up .7s ease both; animation-delay: .45s;
+    }
+    .map-canvas::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 350px; background: radial-gradient(ellipse at center, rgba(254,243,199,.6) 0%, transparent 70%); pointer-events: none; }
+    .map-canvas-header { text-align: center; margin-bottom: 20px; position: relative; }
+    .map-canvas-title { font-family: var(--font-display); font-size: 12px; font-weight: 800; color: var(--accent); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 5px; }
+    .map-canvas-sub { font-size: 12px; color: var(--text-muted); line-height: 1.55; font-weight: 500; }
+    .course-map-bar { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+    .course-map-bar span { font-size: 11px; padding: 8px 6px; background: #fff; border-radius: 10px; color: var(--text-muted); border: 2px solid var(--border); flex: 1; text-align: center; transition: all .35s ease; font-weight: 700; }
+    .course-map-bar span.active { background: #fff7ed; color: var(--accent); border-color: var(--accent); box-shadow: 0 2px 8px var(--accent-dim); }
+
+    /* Road — широкая «полоса» с разметкой, как дорога */
+    .map-road { position: relative; padding: 8px 0 12px; }
+    .map-road::before {
+      content: '';
+      position: absolute;
+      left: 22px;
+      top: 32px;
+      bottom: 32px;
+      width: 20px;
+      margin-left: 0;
+      border-radius: 10px;
+      background-color: var(--road-asphalt);
+      background-image: repeating-linear-gradient(
+        180deg,
+        var(--road-dash) 0px,
+        var(--road-dash) 14px,
+        transparent 14px,
+        transparent 28px
+      );
+      background-size: 4px 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+      border: 3px solid var(--road-edge);
+      box-shadow:
+        0 4px 14px rgba(15,23,42,.2),
+        inset 0 0 0 1px rgba(255,255,255,.15);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .road-progress-line {
+      position: absolute;
+      left: 28px;
+      top: 36px;
+      width: 8px;
+      margin-left: 0;
+      height: 0;
+      border-radius: 4px;
+      background: linear-gradient(180deg, #2563eb 0%, #0d9488 40%, #059669 70%, #d97706 100%);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.4), 0 2px 8px rgba(37,99,235,.35);
+      transition: height 0.8s ease;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Road rows — поверх дороги */
+    .road-row { position: relative; z-index: 3; display: flex; gap: 16px; align-items: flex-start; margin-bottom: 22px; }
+    .road-row:last-child { margin-bottom: 0; }
+
+    /* Pins */
+    .map-pin-wrap { flex-shrink: 0; width: 64px; display: flex; flex-direction: column; align-items: center; padding-top: 0; }
+    .map-pin {
+      width: 52px; height: 52px; border-radius: 50%; color: #fff; font-size: 22px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative;
+      transition: filter .4s ease, transform .2s ease;
+      border: 4px solid #fff;
+      box-shadow: 0 4px 12px rgba(15,23,42,.25), 0 0 0 2px var(--road-edge);
+    }
+    .map-pin::after { content: ''; position: absolute; inset: -8px; border-radius: 50%; opacity: .2; animation: glow-ring 3s ease-in-out infinite; }
+    #step1 .map-pin { background: linear-gradient(145deg,#2563eb,#1d4ed8); animation: pin-pulse 3s ease-in-out infinite; }
+    #step1 .map-pin::after { background: radial-gradient(circle, rgba(59,130,246,.45), transparent); }
+    #step2 .map-pin { background: linear-gradient(145deg,#0891b2,#0e7490); animation: pin-pulse 3s ease-in-out infinite .6s; }
+    #step2 .map-pin::after { background: radial-gradient(circle, rgba(6,182,212,.45), transparent); }
+    #step3 .map-pin { background: linear-gradient(145deg,#059669,#047857); animation: pin-pulse 3s ease-in-out infinite 1.2s; }
+    #step3 .map-pin::after { background: radial-gradient(circle, rgba(16,185,129,.45), transparent); }
+    #step4 .map-pin { background: linear-gradient(145deg,#ea580c,#c2410c); animation: pin-pulse 3s ease-in-out infinite 1.8s; }
+    #step4 .map-pin::after { background: radial-gradient(circle, rgba(234,88,12,.4), transparent); }
+    #step5 .map-pin { background: linear-gradient(145deg,#7c3aed,#5b21b6); animation: pin-pulse 2s ease-in-out infinite 2s; }
+    #step5 .map-pin::after { background: radial-gradient(circle, rgba(124,58,237,.45), transparent); animation-duration: 2s; }
+
+    /* Phase done: greyed */
+    .road-row.phase-done .map-step-body { opacity: .45; }
+    .road-row.phase-done .map-pin { filter: grayscale(.6); }
+    /* Phase checked: glowing green */
+    .road-row.phase-checked .map-pin { filter: none !important; }
+    .road-row.phase-checked .map-step-body { opacity: 1 !important; border-color: #059669 !important; box-shadow: 0 0 0 2px rgba(5,150,105,.2) !important; }
+
+    /* Step body */
+    .map-step-body { flex: 1; min-width: 0; background: #fff; border-radius: 14px; padding: 16px 18px; backdrop-filter: blur(14px); transition: border-color .3s, box-shadow .3s, opacity .3s; position: relative; box-shadow: 0 4px 16px rgba(15,23,42,.1); }
+    #step1 .map-step-body { border: 2px solid #bfdbfe; border-left: 5px solid #2563eb; }
+    #step2 .map-step-body { border: 2px solid #99f6e4; border-left: 5px solid #0d9488; }
+    #step3 .map-step-body { border: 2px solid #6ee7b7; border-left: 5px solid #059669; }
+    #step4 .map-step-body { border: 2px solid #fed7aa; border-left: 5px solid #ea580c; }
+    #step5 .map-step-body { border: 2px solid #ddd6fe; border-left: 5px solid #7c3aed; box-shadow: 0 4px 18px rgba(124,58,237,.14); }
+
+    /* Phase badges */
+    .phase-badge { position: absolute; top: -1px; right: -1px; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 0 13px 0 8px; display: none; letter-spacing: .04em; text-transform: uppercase; }
+    .phase-badge.badge-key  { display: block; background: linear-gradient(135deg, var(--accent), #c9902e); color: #06060c; }
+    .phase-badge.badge-done { display: block; background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; border-top: none; border-right: none; }
+    .phase-badge.badge-next { display: block; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; border-top: none; border-right: none; }
+
+    .map-step-name { font-family: var(--font-display); font-size: 15px; font-weight: 800; color: var(--text); margin: 0 0 4px; line-height: 1.3; }
+    .map-step-time { font-family: var(--font-display); font-size: 11px; color: var(--accent); margin-bottom: 10px; font-weight: 800; letter-spacing: .04em; display: flex; align-items: center; gap: 5px; }
+    .map-step-time::before { content: '⏱'; font-size: 9px; }
+    .map-step-body h4 {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .12em;
+      color: var(--text); margin: 12px 0 6px; font-weight: 800;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .map-step-body h4::before {
+      content: ''; flex-shrink: 0; width: 18px; height: 1.5px;
+      background: currentColor; opacity: .4; border-radius: 1px;
+    }
+    .map-step-body ul { margin: 0; padding-left: 0; list-style: none; }
+    .map-step-body li {
+      margin: 6px 0; font-size: 13px; color: var(--text-muted);
+      line-height: 1.55; padding-left: 18px; position: relative;
+    }
+    .map-step-body li::before {
+      content: '→'; position: absolute; left: 0;
+      color: var(--accent); font-size: 12px; font-weight: 800; opacity: .9;
+    }
+    .map-tools { margin-top: 10px; }
+    .tools-list { font-size: 11px; color: #0f766e; display: flex; flex-wrap: wrap; gap: 6px; }
+    .tool-tag { background: #ccfbf1; padding: 4px 10px; border-radius: 6px; border: 1px solid #5eead4; color: #0f3d3a; font-weight: 700; }
+    .map-services { margin-top: 10px; padding: 8px 12px; background: #eff6ff; border-radius: 10px; border-left: 3px solid #93c5fd; }
+    .map-services h4 { margin: 0 0 4px; color: #1e40af; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; font-weight: 800; }
+    .map-services h4::before { display: none; }
+    .map-services ul { margin: 0; padding-left: 0; list-style: none; }
+    .map-services li { font-size: 10.5px; color: #1e40af; padding-left: 12px; position: relative; margin: 3px 0; }
+    .map-services li::before { content: '·'; position: absolute; left: 0; font-weight: 900; color: #3b82f6; }
+    .map-earn {
+      margin-top: 10px; padding: 10px 14px;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border-radius: 10px; border: 1.5px solid #fde68a;
+      font-size: 13px; font-weight: 800; color: #92400e;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 2px 8px rgba(180,83,9,.09);
+    }
+    .map-earn::before { content: '₽'; font-size: 15px; font-weight: 900; color: #b45309; }
+    .phase-result {
+      margin-top: 10px; padding: 10px 14px;
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      border-radius: 10px; border: 1px solid #6ee7b7;
+      font-size: 12px; font-weight: 700; color: #065f46;
+      line-height: 1.5; display: flex; align-items: flex-start; gap: 8px;
+      box-shadow: 0 2px 8px rgba(5,150,105,.09);
+    }
+    .phase-result::before { content: '✓'; font-size: 13px; font-weight: 900; color: #059669; flex-shrink: 0; margin-top: 1px; }
+
+    /* Phase "Освоил" button */
+    .phase-check-btn {
+      margin-top: 10px; width: 100%; padding: 10px 12px; border-radius: 10px;
+      font-family: var(--font-display);
+      font-weight: 700; font-size: 12px;
+      cursor: pointer; transition: all .2s ease;
+      border: 1px solid var(--border);
+      background: #f8fafc; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .phase-check-btn:hover { border-color: #059669; color: #047857; }
+    .phase-check-btn.checked { background: #ecfdf5; border-color: #059669; color: #047857; }
+
+    .journey-title { font-family: var(--font-display); position: absolute; right: 14px; top: 50%; font-size: 10px; font-weight: 800; letter-spacing: .2em; color: var(--text-muted); writing-mode: vertical-rl; text-transform: uppercase; transform: translateY(-50%) rotate(180deg); pointer-events: none; opacity: .85; }
+
+    /* ===== COUNTDOWN ===== */
+    .countdown-card {
+      margin-top: 24px; padding: 18px 20px;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 16px; text-align: center; backdrop-filter: blur(8px);
+      box-shadow: var(--shadow-card);
+      display: none;
+    }
+    .countdown-label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 12px; }
+    .countdown-digits { display: flex; justify-content: center; gap: 12px; }
+    .countdown-unit { text-align: center; }
+    .countdown-num { font-size: 36px; font-weight: 900; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
+    .countdown-unit-label { font-size: 10px; color: #475569; margin-top: 4px; }
+    .countdown-sep { font-size: 36px; font-weight: 900; color: #e2e8f0; align-self: flex-start; line-height: 1; padding-top: 0; }
+
+    /* ===== READY BUTTON ===== */
+    .ready-btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin: 24px auto 0; padding: 16px 36px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff; text-decoration: none;
+      border-radius: 14px; font-size: 16px; font-weight: 800;
+      box-shadow: 0 6px 28px rgba(16,185,129,.4);
+      transition: all .2s ease; position: relative; overflow: hidden;
+      max-width: 380px;
+    }
+    .ready-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent); animation: shine 2.5s ease infinite; }
+    .ready-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(16,185,129,.55); }
+    .ready-btn-icon { font-size: 20px; }
+
+    /* ===== SHARE BUTTON ===== */
+    .share-btn {
+      display: block; margin: 12px auto 0; padding: 12px 28px;
+      background: #fff; color: var(--text-muted);
+      border: 1px solid var(--border); border-radius: 10px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all .2s ease; max-width: 380px; width: 100%;
+      box-shadow: var(--shadow-card);
+    }
+    .share-btn:hover { border-color: var(--border-focus); color: var(--accent); }
+    .share-btn.copied { background: #ecfdf5; border-color: #6ee7b7; color: #047857; }
+
+    /* ===== PRINT BUTTON ===== */
+    .print-btn { font-family: var(--font-display); display: block; margin: 24px auto 0; padding: 13px 40px; background: linear-gradient(135deg, #d97706, #b45309); color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: .02em; box-shadow: 0 6px 24px rgba(180,83,9,.25); transition: all .2s ease; position: relative; overflow: hidden; }
+    .print-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent); animation: shine 2.8s ease infinite; }
+    .print-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(180,83,9,.3); }
+
+    /* ===== MAP FOOTER ===== */
+    .map-footer { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border); text-align: center; font-size: 12px; color: var(--text-muted); }
+    .footer-date { color: var(--accent); font-weight: 600; }
+
+    /* ===== MOBILE ===== */
+    @media (max-width: 600px) {
+      .road-row { gap: 12px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .stats-row .stat-card:last-child { grid-column: span 2; }
+      .transform-block { grid-template-columns: 1fr; }
+      .transform-arrow { transform: rotate(90deg); display: block; margin: -6px auto; }
+      .calc-results { grid-template-columns: 1fr; }
+      .countdown-num { font-size: 28px; }
+    }
+
+    /* Подсказка под кнопкой печати (только экран) */
+    .print-pdf-screen-hint {
+      max-width: 420px; margin: 12px auto 0; padding: 0 8px;
+      font-size: 12px; line-height: 1.45; color: var(--text-soft); text-align: center;
+    }
+
+    /* ===== PRINT ===== */
+    @page {
+      margin: 10mm 12mm;
+      size: A4 portrait;
+    }
+
+    @media print {
+      *, *::before, *::after {
+        animation: none !important; transition: none !important;
+        -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+      }
+      html { color-scheme: light !important; }
+      html, body { background: #fff !important; color: #111 !important; padding: 0 !important; font-size: 10.5pt !important; line-height: 1.5 !important; }
+      body::before, body::after, .grain { display: none !important; }
+      #welcomeOverlay { display: none !important; }
+      .wrap { padding: 0 !important; max-width: 100% !important; width: 100% !important; }
+      .manager-panel, .no-print, .print-btn, .phase-check-btn,
+      .countdown-card, .ready-btn, .share-btn, .progress-header,
+      .calc-card, .print-pdf-screen-hint, .print-only-tip { display: none !important; }
+
+      /* ── HERO ── */
+      .hero { text-align: center !important; padding: 0 0 14pt !important; margin-bottom: 14pt !important; border-bottom: 2px solid #111 !important; background: none !important; backdrop-filter: none !important; }
+      .hero-glow { display: none !important; }
+      .hero h1 { font-size: 21pt !important; font-weight: 900 !important; color: #111 !important; background: none !important; -webkit-text-fill-color: #111 !important; line-height: 1.2 !important; margin-bottom: 8pt !important; }
+      .client-name-display { color: #9a3412 !important; font-size: 13pt !important; font-weight: 700 !important; display: block !important; margin-bottom: 5pt !important; }
+      .hero-sub { color: #444 !important; font-size: 10.5pt !important; margin: 0 !important; }
+
+      /* ── TRANSFORM ── */
+      .transform-block { display: grid !important; grid-template-columns: 1fr 22pt 1fr !important; gap: 0 !important; align-items: start !important; margin: 12pt 0 !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+      .transform-arrow { display: flex !important; align-items: center !important; justify-content: center !important; font-size: 16pt !important; color: #64748b !important; padding-top: 4pt !important; }
+      .transform-side { background: none !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; padding: 0 !important; border-radius: 0 !important; }
+      .transform-side.before { background: none !important; border-color: transparent !important; border-right: 1px solid #e2e8f0 !important; padding-right: 12pt !important; }
+      .transform-side.after { background: none !important; border-color: transparent !important; padding-left: 12pt !important; }
+      .transform-label { font-size: 7.5pt !important; font-weight: 900 !important; letter-spacing: .12em !important; text-transform: uppercase !important; color: #64748b !important; margin-bottom: 5pt !important; display: block !important; }
+      .before .transform-item { color: #7f1d1d !important; font-size: 10pt !important; padding: 2pt 0 2pt 14pt !important; position: relative !important; line-height: 1.35 !important; }
+      .after .transform-item { color: #14532d !important; font-size: 10pt !important; padding: 2pt 0 2pt 14pt !important; position: relative !important; line-height: 1.35 !important; }
+      .before .transform-item::before { content: '–' !important; position: absolute !important; left: 0 !important; font-weight: 900 !important; color: #7f1d1d !important; }
+      .after .transform-item::before { content: '+' !important; position: absolute !important; left: 0 !important; font-weight: 900 !important; color: #14532d !important; }
+
+      /* ── STATS ── */
+      .stats-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 0 !important; margin: 14pt 0 !important; border-top: 1px solid #e2e8f0 !important; border-bottom: 1px solid #e2e8f0 !important; padding: 10pt 0 !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+      .stat-card, .stats-row .stat-card { background: none !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; text-align: center !important; padding: 0 8pt !important; border-right: 1px solid #e2e8f0 !important; }
+      .stat-card:last-child, .stats-row .stat-card:last-child { border-right: none !important; }
+      .stat-num { font-size: 22pt !important; font-weight: 900 !important; line-height: 1 !important; display: block !important; margin-bottom: 4pt !important; background: none !important; background-clip: border-box !important; -webkit-background-clip: border-box !important; }
+      .stat-num.gold { background: none !important; background-clip: border-box !important; -webkit-background-clip: border-box !important; -webkit-text-fill-color: #d97706 !important; color: #d97706 !important; }
+      .stat-num.blue { background: none !important; background-clip: border-box !important; -webkit-background-clip: border-box !important; -webkit-text-fill-color: #2563eb !important; color: #2563eb !important; }
+      .stat-num.green { background: none !important; background-clip: border-box !important; -webkit-background-clip: border-box !important; -webkit-text-fill-color: #059669 !important; color: #059669 !important; }
+      .stat-desc { font-size: 8.5pt !important; color: #334155 !important; line-height: 1.3 !important; }
+      .stat-source { font-size: 7.5pt !important; color: #94a3b8 !important; margin-top: 2pt !important; }
+
+      /* ── MARKET QUOTE ── */
+      .market-quote { background: none !important; border: none !important; border-left: 3px solid #475569 !important; border-radius: 0 !important; color: #334155 !important; font-size: 10.5pt !important; font-style: italic !important; padding: 5pt 0 5pt 12pt !important; margin: 10pt 0 !important; break-inside: avoid !important; }
+
+      /* ── PROFILE + ACCENT ── */
+      .profile-card { background: none !important; border: none !important; border-top: 1px solid #cbd5e1 !important; border-radius: 0 !important; padding: 8pt 0 !important; backdrop-filter: none !important; break-after: avoid !important; page-break-after: avoid !important; }
+      .profile-card h2 { font-size: 7.5pt !important; letter-spacing: .12em !important; text-transform: uppercase !important; color: #64748b !important; margin-bottom: 5pt !important; font-weight: 900 !important; }
+      .profile-row { color: #334155 !important; font-size: 10pt !important; flex-wrap: wrap !important; gap: 16pt !important; }
+      .personal-accent { background: none !important; border: none !important; border-left: 3px solid #94a3b8 !important; border-radius: 0 !important; padding: 4pt 0 4pt 12pt !important; color: #475569 !important; backdrop-filter: none !important; margin: 6pt 0 !important; break-after: avoid !important; page-break-after: avoid !important; }
+      .personal-accent strong { color: #1e293b !important; }
+
+      /* ── FIRST STEPS ── */
+      .first-steps-card { background: none !important; border: none !important; border-top: 1px solid #cbd5e1 !important; border-radius: 0 !important; padding: 8pt 0 !important; backdrop-filter: none !important; break-inside: avoid !important; page-break-inside: avoid !important; margin-top: 6pt !important; }
+      .first-steps-card h2 { font-size: 7.5pt !important; letter-spacing: .12em !important; text-transform: uppercase !important; color: #64748b !important; margin-bottom: 8pt !important; font-weight: 900 !important; background: none !important; }
+      .first-steps-card h2::before { display: none !important; }
+      .step-item { gap: 10pt !important; margin-bottom: 6pt !important; align-items: flex-start !important; }
+      .step-num { background: #111 !important; color: #fff !important; border-color: #111 !important; font-weight: 900 !important; width: 18pt !important; height: 18pt !important; font-size: 8.5pt !important; flex-shrink: 0 !important; border-radius: 50% !important; }
+      .step-text { color: #1e293b !important; font-size: 10pt !important; line-height: 1.4 !important; }
+
+      /* ── MAP CANVAS: новая страница ── */
+      .map-canvas { break-before: page !important; page-break-before: always !important; background: none !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; overflow: visible !important; }
+      .map-canvas::before { display: none !important; }
+      .map-canvas-header { text-align: center !important; border-bottom: 2px solid #111 !important; padding-bottom: 8pt !important; margin-bottom: 10pt !important; break-after: avoid !important; page-break-after: avoid !important; }
+      .map-canvas-title { font-size: 15pt !important; font-weight: 900 !important; color: #111 !important; }
+      .map-canvas-sub { font-size: 9pt !important; color: #64748b !important; margin-top: 3pt !important; }
+      .journey-title { display: none !important; }
+
+      /* ── COURSE BAR ── */
+      .course-map-bar { display: flex !important; gap: 4pt !important; margin-bottom: 12pt !important; break-after: avoid !important; page-break-after: avoid !important; }
+      .course-map-bar span { flex: 1 !important; text-align: center !important; font-size: 7.5pt !important; font-weight: 700 !important; padding: 4pt 2pt !important; background: none !important; border: 1px solid #cbd5e1 !important; color: #64748b !important; box-shadow: none !important; border-radius: 3pt !important; }
+      .course-map-bar span.active { background: #111 !important; color: #fff !important; border-color: #111 !important; }
+
+      /* ── ДОРОГА ── */
+      .map-road { position: relative !important; padding: 0 !important; }
+      .map-road::before { display: none !important; }
+      .road-progress-line { display: none !important; }
+
+      /* ── КАРТОЧКИ ФАЗ ── */
+      .road-row { display: flex !important; gap: 10pt !important; align-items: flex-start !important; padding: 10pt 0 !important; border-bottom: 1px solid #e2e8f0 !important; margin-bottom: 0 !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+      .road-row:last-child { border-bottom: none !important; }
+      .road-row.phase-done .map-step-body { opacity: 1 !important; }
+      .road-row.phase-done .map-pin { filter: none !important; }
+
+      .map-pin-wrap { width: 34pt !important; flex-shrink: 0 !important; display: flex !important; align-items: flex-start !important; }
+      .map-pin { width: 30pt !important; height: 30pt !important; font-size: 13pt !important; border: 2px solid #111 !important; box-shadow: none !important; filter: none !important; border-radius: 50% !important; flex-shrink: 0 !important; }
+      .map-pin::after { display: none !important; }
+      #step1 .map-pin { background: #2563eb !important; }
+      #step2 .map-pin { background: #0d9488 !important; }
+      #step3 .map-pin { background: #059669 !important; }
+      #step4 .map-pin { background: #ea580c !important; }
+      #step5 .map-pin { background: #7c3aed !important; }
+
+      .map-step-body { flex: 1 !important; background: none !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; padding: 0 !important; opacity: 1 !important; border-radius: 0 !important; }
+      .map-step-name { font-size: 11.5pt !important; font-weight: 800 !important; line-height: 1.25 !important; margin-bottom: 3pt !important; }
+      #step1 .map-step-name { color: #1d4ed8 !important; }
+      #step2 .map-step-name { color: #0f766e !important; }
+      #step3 .map-step-name { color: #047857 !important; }
+      #step4 .map-step-name { color: #c2410c !important; }
+      #step5 .map-step-name { color: #6d28d9 !important; }
+
+      .map-step-time { font-size: 8pt !important; color: #64748b !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: .08em !important; margin-bottom: 5pt !important; display: block !important; }
+      .map-step-time::before { display: none !important; }
+
+      .map-step-body h4 { font-size: 7.5pt !important; text-transform: uppercase !important; letter-spacing: .1em !important; color: #64748b !important; font-weight: 900 !important; margin: 7pt 0 3pt !important; display: block !important; border: none !important; }
+      .map-step-body h4::before { display: none !important; }
+      .map-step-body ul { margin: 0 !important; padding-left: 0 !important; list-style: none !important; }
+      .map-step-body li { font-size: 9.5pt !important; color: #1e293b !important; padding-left: 11pt !important; margin: 2pt 0 !important; line-height: 1.4 !important; position: relative !important; }
+      .map-step-body li::before { content: '→' !important; position: absolute !important; left: 0 !important; color: #64748b !important; font-size: 9pt !important; opacity: 1 !important; }
+
+      .map-tools { margin: 5pt 0 !important; }
+      .tools-list { display: flex !important; flex-wrap: wrap !important; gap: 3pt !important; }
+      .tool-tag { background: none !important; border: 1px solid #cbd5e1 !important; color: #0f766e !important; font-size: 8pt !important; font-weight: 700 !important; padding: 1pt 5pt !important; border-radius: 3pt !important; }
+
+      .map-services { background: none !important; border: none !important; border-left: 2px solid #93c5fd !important; border-radius: 0 !important; padding: 2pt 0 2pt 8pt !important; margin: 5pt 0 !important; }
+      .map-services h4 { font-size: 7pt !important; text-transform: uppercase !important; letter-spacing: .1em !important; color: #3b82f6 !important; font-weight: 900 !important; margin: 0 0 2pt !important; }
+      .map-services h4::before { display: none !important; }
+      .map-services li { font-size: 9pt !important; color: #1e40af !important; padding-left: 8pt !important; }
+      .map-services li::before { content: '·' !important; color: #93c5fd !important; font-weight: 900 !important; }
+
+      .phase-result { background: none !important; border: none !important; border-left: 2px solid #059669 !important; border-radius: 0 !important; padding: 2pt 0 2pt 8pt !important; margin: 5pt 0 !important; font-size: 10pt !important; font-weight: 700 !important; font-style: italic !important; color: #065f46 !important; display: block !important; box-shadow: none !important; line-height: 1.4 !important; }
+      .phase-result::before { display: none !important; }
+
+      .map-earn { background: none !important; border: none !important; border-left: 2px solid #d97706 !important; border-radius: 0 !important; padding: 2pt 0 2pt 8pt !important; margin: 5pt 0 !important; font-size: 11pt !important; font-weight: 900 !important; color: #92400e !important; display: block !important; box-shadow: none !important; }
+      .map-earn::before { content: '₽ ' !important; color: #d97706 !important; }
+
+      .phase-badge { display: none !important; }
+
+      /* ── FOOTER ── */
+      .map-footer { border-top: 1px solid #e2e8f0 !important; color: #94a3b8 !important; margin-top: 10pt !important; font-size: 9pt !important; padding-top: 6pt !important; }
+      .footer-date { color: #9a3412 !important; font-weight: 600 !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== WELCOME OVERLAY ===== -->
+<div id="welcomeOverlay" class="welcome-overlay" style="display:none">
+  <div class="welcome-inner">
+    <div class="welcome-spark">✨</div>
+    <div class="welcome-name-line" id="welcomeName"></div>
+    <div class="welcome-tagline" id="welcomeTagline">мы подготовили твою личную карту</div>
+    <div class="welcome-sub" id="welcomeSub">5 шагов к заработку на нейросетях — специально под тебя</div>
+    <div class="welcome-bar-wrap" id="welcomeBarWrap">
+      <div class="welcome-bar-fill" id="welcomeBarFill"></div>
+    </div>
+  </div>
+</div>
+
+<div class="grain" aria-hidden="true"></div>
+<!-- Полоска «показать панель» (видна, когда панель свернута) -->
+<div class="manager-panel-reopen-strip no-print" id="managerPanelReopenStrip" hidden>
+  <button type="button" class="manager-panel-reopen-btn" id="managerPanelReopenBtn" aria-expanded="false" aria-controls="managerPanel">▲ Показать панель менеджера</button>
+</div>
+<!-- ===== MANAGER PANEL ===== -->
+<div class="manager-panel no-print" id="managerPanel">
+  <div class="manager-panel-inner">
+    <div class="panel-top-row">
+      <div class="manager-panel-title">Панель менеджера</div>
+      <div class="panel-top-actions">
+        <button type="button" class="panel-hide-btn" id="managerPanelHideBtn" title="Скрыть панель (удобно при показе карты клиенту)" aria-controls="managerPanel">Свернуть панель</button>
+      </div>
+    </div>
+
+    <div class="panel-inputs-row" style="margin-bottom:10px">
+      <input class="panel-input name-input" id="panelName" type="text" placeholder="Имя клиента" oninput="updateMap()">
+      <input class="panel-input contact-input" id="panelContact" type="text" placeholder="Telegram: @username или номер" oninput="updateMap()">
+      <input class="panel-input date-input" id="panelStartDate" type="date" oninput="updateMap()" title="Дата первого шага клиента">
+    </div>
+
+    <div class="panel-row">
+      <span class="panel-label">Кто клиент</span>
+      <div class="pill-group">
+        <span class="pill" data-group="prof" data-val="smm">SMM / Контент</span>
+        <span class="pill" data-group="prof" data-val="marketer">Маркетолог</span>
+        <span class="pill" data-group="prof" data-val="entrepreneur">Предприниматель</span>
+        <span class="pill" data-group="prof" data-val="freelancer">Фрилансер</span>
+        <span class="pill" data-group="prof" data-val="accountant">Бухгалтер / Офис</span>
+        <span class="pill" data-group="prof" data-val="designer">Дизайнер</span>
+        <span class="pill" data-group="prof" data-val="hr">HR / Рекрутер</span>
+        <span class="pill" data-group="prof" data-val="employee">Наёмный сотрудник</span>
+        <span class="pill" data-group="prof" data-val="unemployed">Безработный</span>
+        <span class="pill" data-group="prof" data-val="other">Другое</span>
+      </div>
+    </div>
+
+    <div class="panel-row">
+      <span class="panel-label">Цель</span>
+      <div class="pill-group">
+        <span class="pill" data-group="goal" data-val="earn">Зарабатывать</span>
+        <span class="pill" data-group="goal" data-val="optimize">Оптимизировать</span>
+        <span class="pill" data-group="goal" data-val="scale">Масштабировать</span>
+        <span class="pill" data-group="goal" data-val="learn">Учиться с нуля</span>
+      </div>
+    </div>
+
+    <div class="panel-row">
+      <span class="panel-label">Уровень</span>
+      <div class="pill-group">
+        <span class="pill" data-group="level" data-val="never">Не пробовал</span>
+        <span class="pill" data-group="level" data-val="tried">Пробовал чуть-чуть</span>
+        <span class="pill" data-group="level" data-val="uses">Использую</span>
+        <span class="pill" data-group="level" data-val="implement">Хочу внедрить</span>
+      </div>
+    </div>
+
+    <div class="panel-inputs-row">
+      <textarea class="panel-textarea" id="panelStep1" placeholder="Шаг 1 для клиента (авто-заполнится)" oninput="updateMap()"></textarea>
+      <textarea class="panel-textarea" id="panelStep2" placeholder="Шаг 2 для клиента (авто-заполнится)" oninput="updateMap()"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ===== КЛИЕНТСКАЯ КАРТА ===== -->
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <span class="client-name-display" id="clientNameDisplay"></span>
+    <h1>Рынок уже разделился.<br>Те, кто работает с ИИ — зарабатывают больше.</h1>
+    <p class="hero-sub">Это твой персональный план — 5 шагов от первого промпта до реального дохода. Конкретные инструменты, конкретный результат.</p>
+  </div>
+
+  <div class="transform-block">
+    <div class="transform-side before">
+      <div class="transform-label">Сейчас</div>
+      <div class="transform-item" id="before1">Делаешь рутинные задачи вручную</div>
+      <div class="transform-item" id="before2">Тратишь часы на тексты и контент</div>
+      <div class="transform-item" id="before3">Работа = много времени, мало отдачи</div>
+      <div class="transform-item" id="before4">Конкуренты с ИИ обгоняют</div>
+    </div>
+    <div class="transform-arrow">→</div>
+    <div class="transform-side after">
+      <div class="transform-label">С ИИ в руках</div>
+      <div class="transform-item" id="after1">Автоматизируешь рутину за минуты</div>
+      <div class="transform-item" id="after2">Создаёшь тексты, картинки, видео с ИИ</div>
+      <div class="transform-item" id="after3">Делаешь в 5× больше за то же время</div>
+      <div class="transform-item" id="after4">Зарабатываешь до 200 000 ₽/мес</div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num blue">72%</div><div class="stat-desc">компаний уже работают с ИИ — гонка за рынок идёт прямо сейчас</div><div class="stat-source">McKinsey, 2024</div></div>
+    <div class="stat-card"><div class="stat-num gold">+40%</div><div class="stat-desc">к ставке специалиста с ИИ-навыками по сравнению с теми, кто без них</div><div class="stat-source">Upwork, 2025</div></div>
+    <div class="stat-card"><div class="stat-num green" id="stat3num">329%</div><div class="stat-desc" id="stat3desc">рост спроса на ИИ-видео за год</div><div class="stat-source" id="stat3src">Upwork, 2025</div></div>
+  </div>
+
+  <div class="market-quote">«Лучший специалист сейчас — тот, кто умеет работать в паре: ты и ИИ»</div>
+
+  <!-- КАЛЬКУЛЯТОР ДОХОДА -->
+  <div class="calc-card">
+    <div class="calc-title">Твой потенциальный заработок</div>
+    <div class="calc-sub" id="calcSub">Выбери профиль и цель — ползунок покажет твой результат</div>
+    <div class="calc-slider-row">
+      <input class="calc-slider" id="calcSlider" type="range" min="1" max="20" value="5" oninput="updateCalc(this.value)">
+      <div class="calc-hours"><span id="calcHoursNum">5</span> <span>ч/нед</span></div>
+    </div>
+    <div class="calc-results">
+      <div class="calc-result">
+        <div class="calc-result-period">Через 1 месяц</div>
+        <div class="calc-result-value" id="calcM1">15 000 ₽</div>
+        <div class="calc-result-note" id="calcM1note">первые заказы</div>
+      </div>
+      <div class="calc-result highlight">
+        <div class="calc-result-period">Через 3 месяца</div>
+        <div class="calc-result-value" id="calcM3">55 000 ₽</div>
+        <div class="calc-result-note" id="calcM3note">стабильный поток</div>
+      </div>
+      <div class="calc-result">
+        <div class="calc-result-period">Через 6 месяцев</div>
+        <div class="calc-result-value" id="calcM6">120 000 ₽</div>
+        <div class="calc-result-note" id="calcM6note">полный арсенал</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-card">
+    <h2>Твой профиль</h2>
+    <div class="profile-row">
+      <span><strong>Род деятельности:</strong> <span id="profileProf">—</span></span>
+      <span><strong>Цель:</strong> <span id="profileGoal">—</span></span>
+      <span><strong>Уровень:</strong> <span id="profileLevel">—</span></span>
+    </div>
+  </div>
+
+  <div class="personal-accent">
+    <strong>Под тебя:</strong> <span id="accentText">Выбери профиль — и карта настроится под твои задачи и цели.</span>
+  </div>
+
+  <div class="first-steps-card">
+    <h2>Твои первые шаги</h2>
+    <div class="step-item"><span class="step-num">1</span><div class="step-text" id="step1text">Зарегистрируйся в ChatGPT и сделай первый запрос под свою задачу.</div></div>
+    <div class="step-item"><span class="step-num">2</span><div class="step-text" id="step2text">Выбери одну задачу этой недели и сделай её с нейросетью.</div></div>
+  </div>
+
+  <!-- ПРОГРЕСС ТРЕКЕР -->
+  <div class="progress-header" id="progressHeader">
+    <span class="progress-header-label">Прогресс</span>
+    <div class="progress-dots" id="progressDots">
+      <div class="progress-dot" id="dot1"></div>
+      <div class="progress-dot" id="dot2"></div>
+      <div class="progress-dot" id="dot3"></div>
+      <div class="progress-dot" id="dot4"></div>
+      <div class="progress-dot" id="dot5"></div>
+    </div>
+    <span class="progress-count" id="progressCount">0 / 5</span>
+  </div>
+
+  <!-- КАРТА -->
+  <div class="map-canvas" id="map">
+    <div class="journey-title" aria-hidden="true">Путь клиента</div>
+    <div class="map-canvas-header">
+      <div class="map-canvas-title">Твоя дорога к заработку</div>
+      <div class="map-canvas-sub">5 шагов · <strong>Цветная линия слева</strong> — твой маршрут. Каждая точка — новый уровень навыков и дохода. Пройди все — выйдешь на серьёзный заработок.</div>
+    </div>
+    <div class="course-map-bar">
+      <span class="active">Шаг 1 · ChatGPT</span><span>Шаг 2 · ИИ-арсенал</span><span>Шаг 3 · Визуал</span><span>Шаг 4 · Видео</span><span>Шаг 5 · Автоматизация</span>
+    </div>
+
+    <div class="map-road">
+      <div class="road-progress-line" id="roadProgress"></div>
+
+      <div class="road-row" id="step1">
+        <div class="map-pin-wrap"><div class="map-pin"><span aria-hidden="true">💬</span></div></div>
+        <div class="map-step-body">
+          <span class="phase-badge" id="badge1"></span>
+          <div class="map-step-name">Шаг 1 · ChatGPT — говоришь задачу, получаешь результат</div>
+          <div class="map-step-time">2–3 недели</div>
+          <h4>Что освоишь</h4>
+          <ul><li>Эффективные промпты под любую задачу — с нуля до уверенного уровня</li><li>Продающие тексты, контент-планы, лид-магниты и воронки продаж за минуты</li><li>Автоматизация прогревов, рассылок и сценариев для видео-контента</li><li>GPT-агенты: создаёшь своего ИИ-помощника под конкретную нишу и задачи</li></ul>
+          <div class="map-tools"><div class="tools-list"><span class="tool-tag">ChatGPT</span><span class="tool-tag">GPT-агенты</span></div></div>
+          <div class="phase-result">30 минут — вместо целого дня. И так каждый день.</div>
+          <div class="map-services"><h4>Можешь продавать</h4><ul id="services1"><li>Посты, контент-планы, продающие тексты, SMM под ключ</li></ul></div>
+          <div class="map-earn" id="earn1">3 000–50 000 ₽/мес</div>
+          <button class="phase-check-btn" id="checkBtn1" onclick="togglePhase(1)">☐ Отметить как пройденную</button>
+        </div>
+      </div>
+
+      <div class="road-row" id="step2">
+        <div class="map-pin-wrap"><div class="map-pin"><span aria-hidden="true">🔄</span></div></div>
+        <div class="map-step-body">
+          <span class="phase-badge" id="badge2"></span>
+          <div class="map-step-name">Шаг 2 · ИИ-арсенал — правильный инструмент для каждой задачи</div>
+          <div class="map-step-time">1–2 недели</div>
+          <h4>Что освоишь</h4>
+          <ul><li>Gemini и GigaChat — анализ, таблицы, русскоязычный контент без ограничений</li><li>DeepSeek и Grok — мощные бесплатные альтернативы для сложных задач</li><li>Perplexity — ресёрч с реальными источниками: не галлюцинации, а факты со ссылками</li><li>Claude — лучший ИИ для длинных текстов, анализа и точных инструкций</li></ul>
+          <div class="map-tools"><div class="tools-list"><span class="tool-tag">Gemini</span><span class="tool-tag">DeepSeek</span><span class="tool-tag">Grok</span><span class="tool-tag">GigaChat</span><span class="tool-tag">Perplexity</span><span class="tool-tag">Claude</span></div></div>
+          <div class="phase-result">Не гуглишь, не пробуешь наугад — знаешь сразу, что работает.</div>
+          <div class="map-services"><h4>Можешь продавать</h4><ul id="services2"><li>Исследования, аналитика, ИИ-ассистенты под задачи бизнеса</li></ul></div>
+          <div class="map-earn" id="earn2">Больше заказов и клиентов</div>
+          <button class="phase-check-btn" id="checkBtn2" onclick="togglePhase(2)">☐ Отметить как пройденную</button>
+        </div>
+      </div>
+
+      <div class="road-row" id="step3">
+        <div class="map-pin-wrap"><div class="map-pin"><span aria-hidden="true">🖼️</span></div></div>
+        <div class="map-step-body">
+          <span class="phase-badge" id="badge3"></span>
+          <div class="map-step-name">Шаг 3 · Визуал — картинки и баннеры без дизайнера</div>
+          <div class="map-step-time">2–3 недели</div>
+          <h4>Что освоишь</h4>
+          <ul><li>Midjourney — брендовые образы, концепты и арт высшего уровня качества</li><li>Krea AI и Recraft AI — быстрый визуал для соцсетей, рекламы и карточек товаров</li><li>DALL·E 3 — картинки прямо в ChatGPT: без регистраций и лишних вкладок</li><li>NanaBanana — генерация музыки для контента и ИИ-аватар для видео</li></ul>
+          <div class="map-tools"><div class="tools-list"><span class="tool-tag">Midjourney</span><span class="tool-tag">Krea AI</span><span class="tool-tag">Recraft AI</span><span class="tool-tag">DALL·E 3</span><span class="tool-tag">NanaBanana</span></div></div>
+          <div class="phase-result">Визуал за 10 минут. Клиент не поймёт, что без дизайнера.</div>
+          <div class="map-services"><h4>Можешь продавать</h4><ul id="services3"><li>Изображения для соцсетей, карточки товаров, рекламные баннеры</li></ul></div>
+          <div class="map-earn" id="earn3">50 000–120 000 ₽/мес</div>
+          <button class="phase-check-btn" id="checkBtn3" onclick="togglePhase(3)">☐ Отметить как пройденную</button>
+        </div>
+      </div>
+
+      <div class="road-row" id="step4">
+        <div class="map-pin-wrap"><div class="map-pin"><span aria-hidden="true">🎬</span></div></div>
+        <div class="map-step-body">
+          <span class="phase-badge" id="badge4"></span>
+          <div class="map-step-name">Шаг 4 · Видео и голос — контент без камеры и монтажёра</div>
+          <div class="map-step-time">2–3 недели</div>
+          <h4>Что освоишь</h4>
+          <ul><li>HeyGen — ИИ-аватар говорит вместо тебя: видео без камеры, стресса и съёмки</li><li>CapCut — монтаж, нарезка, субтитры и эффекты одной кнопкой за 20 минут</li><li>ElevenLabs — клонируешь голос и озвучиваешь любой контент профессионально</li><li>Создание продающего лендинга и бренд-бука с помощью нейросети — без кода</li></ul>
+          <div class="map-tools"><div class="tools-list"><span class="tool-tag">HeyGen</span><span class="tool-tag">CapCut</span><span class="tool-tag">ElevenLabs</span></div></div>
+          <div class="phase-result">Видео — 20 минут. Раньше на это уходило 2 дня.</div>
+          <div class="map-services"><h4>Можешь продавать</h4><ul id="services4"><li>ИИ-видео, аватары, рекламные ролики, лендинги, озвучка под ключ</li></ul></div>
+          <div class="map-earn" id="earn4">15 000–80 000 ₽ и выше</div>
+          <button class="phase-check-btn" id="checkBtn4" onclick="togglePhase(4)">☐ Отметить как пройденную</button>
+        </div>
+      </div>
+
+      <div class="road-row" id="step5">
+        <div class="map-pin-wrap"><div class="map-pin"><span aria-hidden="true">🤖</span></div></div>
+        <div class="map-step-body">
+          <span class="phase-badge" id="badge5"></span>
+          <div class="map-step-name">Шаг 5 · Автоматизация — система, которая работает без тебя</div>
+          <div class="map-step-time">3–4 недели</div>
+          <h4>Что освоишь</h4>
+          <ul><li>Создаёшь ИИ-бота с нуля: обучение, база знаний, публикация в Telegram</li><li>ManyChat — умные боты для Telegram, Instagram и WhatsApp: отвечают сами 24/7</li><li>Make и n8n — связываешь любые сервисы без кода: триггер → действие → результат</li><li>Интеграции с AmoCRM, VK и другими платформами — бизнес на полном автопилоте</li></ul>
+          <div class="map-tools"><div class="tools-list"><span class="tool-tag">ManyChat</span><span class="tool-tag">Make</span><span class="tool-tag">n8n</span><span class="tool-tag">AmoCRM</span></div></div>
+          <div class="phase-result">Работает пока ты спишь. Продаёт, отвечает, не устаёт.</div>
+          <div class="map-services"><h4>Можешь продавать</h4><ul id="services5"><li>ИИ-боты под ключ, автоматизации для бизнеса, CRM-интеграции, консалтинг</li></ul></div>
+          <div class="map-earn" id="earn5">80 000–200 000+ ₽</div>
+          <button class="phase-check-btn" id="checkBtn5" onclick="togglePhase(5)">☐ Отметить как пройденную</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ОБРАТНЫЙ ОТСЧЁТ -->
+  <div class="countdown-card" id="countdownCard">
+    <div class="countdown-label">⏰ До твоей первой задачи</div>
+    <div class="countdown-digits">
+      <div class="countdown-unit"><div class="countdown-num" id="cdDays">00</div><div class="countdown-unit-label">дней</div></div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-unit"><div class="countdown-num" id="cdHours">00</div><div class="countdown-unit-label">часов</div></div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-unit"><div class="countdown-num" id="cdMins">00</div><div class="countdown-unit-label">минут</div></div>
+    </div>
+  </div>
+
+  <!-- КНОПКА "Я ГОТОВ" -->
+  <a class="ready-btn" id="readyBtn" href="#" style="display:none" target="_blank">
+    <span class="ready-btn-icon">🚀</span>
+    <span id="readyBtnText">Я готов начать — написать менеджеру</span>
+  </a>
+
+  <!-- ПОДЕЛИТЬСЯ (для клиента) -->
+  <button class="share-btn no-print" id="shareBtn" onclick="shareCard()" style="display:none">
+    📤 Поделиться своей картой
+  </button>
+
+  <div class="map-footer">
+    Карта для тебя · <span class="footer-date" id="footer-date"></span>
+  </div>
+  <p class="print-pdf-screen-hint no-print">Для красивого PDF включите в диалоге печати опцию <strong>фона</strong> — иначе браузер уберёт заливки и карта станет «бледной».</p>
+  <button class="print-btn no-print" onclick="window.print()">Сохранить как PDF / Печать</button>
+</div>
+
+<script>
+// ================================================================
+// ДАННЫЕ
+// ================================================================
+const PROFILES = {
+  prof: {
+    smm:         { label: 'SMM / Контент-менеджер', keyPhases: [1,3] },
+    marketer:    { label: 'Маркетолог',              keyPhases: [1,2,3] },
+    entrepreneur:{ label: 'Предприниматель',         keyPhases: [1,4,5] },
+    freelancer:  { label: 'Фрилансер',               keyPhases: [1,2,3,4,5] },
+    accountant:  { label: 'Бухгалтер / Офис',        keyPhases: [1,2] },
+    designer:    { label: 'Дизайнер',                 keyPhases: [3,4] },
+    hr:          { label: 'HR / Рекрутер',            keyPhases: [1,2] },
+    employee:    { label: 'Наёмный сотрудник',        keyPhases: [1,2] },
+    unemployed:  { label: 'Безработный',              keyPhases: [1,2,3] },
+    other:       { label: 'Другое',                   keyPhases: [1] },
+  },
+  goal: { earn:'Зарабатывать', optimize:'Оптимизировать работу', scale:'Масштабировать бизнес', learn:'Учиться с нуля' },
+  level: {
+    never:    { label:'Не пробовал',         donePhases:[] },
+    tried:    { label:'Пробовал чуть-чуть',  donePhases:[] },
+    uses:     { label:'Использую ChatGPT',   donePhases:[1] },
+    implement:{ label:'Хочу внедрить',       donePhases:[1,2] },
+  },
+};
+
+const SERVICES = {
+  smm:         { 1:['Посты, контент-планы, тексты для соцсетей','Сценарии Reels и Stories'], 2:['Контент через Gemini и GigaChat'], 3:['Визуалы для постов и Stories','Баннеры, обложки, рекламные креативы'], 4:['Видео-контент и монтаж с ИИ'], 5:['Чат-бот для приёма заявок на SMM'] },
+  marketer:    { 1:['Тексты для лендингов, email-рассылки','Рекламные объявления, офферы'], 2:['Конкурентный анализ через Perplexity'], 3:['Рекламные баннеры и визуалы кампаний'], 4:['Видео-ролики для рекламы'], 5:['Бот-квалификатор лидов, автоворонка'] },
+  entrepreneur:{ 1:['Коммерческие предложения и оферы','Переписка с партнёрами'], 2:['Аналитика рынка, документы с GigaChat'], 3:['Презентации и питч-деки с визуалом'], 4:['Корпоративные видео, внедрение ИИ в команду'], 5:['Чат-бот для клиентской поддержки 24/7','Автоматизация рутины всей команды'] },
+  freelancer:  { 1:['Тексты под заказ за 5 мин вместо 2 часов','Ведение соцсетей для клиентов'], 2:['Простые боты как отдельная услуга'], 3:['Визуал как услуга от 5 000 ₽/шт'], 4:['Видео-монтаж — услуга с высоким чеком'], 5:['Боты под ключ — от 30 000 ₽ за проект'] },
+  accountant:  { 1:['Письма, служебные записки, отчёты за 2 мин','Шаблоны документов'], 2:['Поиск в документах через Perplexity'], 3:['Презентации с визуалом для руководства'], 4:['Видео-инструкции, упрощение процессов'], 5:['Бот-помощник по документам для сотрудников'] },
+  designer:    { 1:['Тексты к дизайну, описания работ'], 2:['Референсы и мудборды через разные ИИ'], 3:['Генерация концептов и визуалов','Ускорение работы в 3–5 раз'], 4:['ИИ-анимации, лого, цветокоррекция'], 5:['Бот-портфолио для привлечения клиентов'] },
+  hr:          { 1:['Вакансии, офер-письма, корп. коммуникации'], 2:['Скрининг резюме, поиск кандидатов'], 3:['HR-презентации, инфографика по KPI'], 4:['Видео для найма и онбординга'], 5:['Бот-скрининг, чат-бот адаптации'] },
+  employee:    { 1:['Отчёты, письма, документы за 2 минуты','Шаблоны для любых корп. задач'], 2:['Анализ данных, поиск информации с реальными ссылками'], 3:['Презентации и инфографика без дизайнера'], 4:['Видео-инструкции, упрощение внутренних коммуникаций'], 5:['Бот-помощник для команды, автоматизация рутинных задач'] },
+  unemployed:  { 1:['Резюме и сопроводительные письма за 5 минут','Подготовка к собеседованию с ИИ'], 2:['Поиск вакансий и анализ рынка труда'], 3:['Портфолио с визуалами без дизайнера'], 4:['Видео-резюме и самопрезентация'], 5:['Запуск фриланса и первые заказы с помощью ИИ'] },
+  other:       { 1:['Тексты, письма, документы — быстро'], 2:['Больше инструментов — больше возможностей'], 3:['Визуал и картинки с ИИ'], 4:['Видео и дизайн без специальных навыков'], 5:['Свой бот-помощник, автоматизация задач'] },
+};
+
+const EARN = {
+  earn:    ['3 000–50 000 ₽/мес','5 000–25 000 ₽ доп. доход с каждого инструмента','50 000–120 000 ₽/мес','15 000–80 000 ₽ за проект','80 000–200 000+ ₽/мес'],
+  optimize:['Экономия 1–2 часа в день','Автоматизация переписки и поиска данных','Визуал и баннеры без дизайнера и бюджета','Видео и лого без подрядчика','Бот отвечает клиентам вместо тебя 24/7'],
+  scale:   ['Больше клиентов — те же усилия','Охват 3–5 платформ без роста команды','Команда делает в 2–3× больше за тот же день','Новые услуги и направления с ИИ','Пассивный доход: бот продаёт, пока ты спишь'],
+  learn:   ['Первый результат — уже на первом занятии','Уверенно работаешь в разных инструментах','Создаёшь визуал без дизайнерского образования','Видео и дизайн — полноценные новые навыки','Полная экспертиза: учи других и монетизируй'],
+};
+
+// Данные "До/После" по профессии
+const TRANSFORM = {
+  smm: {
+    before: ['Пост — 2–3 часа работы вручную','Платишь дизайнеру за каждую картинку','Ведёшь 2–3 клиента — больше не успеваешь','Конкуренты с ИИ выпускают контент быстрее'],
+    after:  ['Пост с ChatGPT — 10 минут вместо 2 часов','Визуалы с Midjourney — сам, без дизайнера','Ведёшь 5–7 клиентов одновременно','Зарабатываешь до 120 000 ₽/мес на контенте'],
+  },
+  marketer: {
+    before: ['Исследование ЦА — день работы','Рекламные тексты — подрядчик или долго','Гипотез тестируешь 2–3 в месяц','Бюджет на копирайтеров и дизайнеров'],
+    after:  ['Анализ ЦА с Perplexity — 30 минут','Рекламный текст пишешь сам за 15 минут','20+ гипотез в месяц — без подрядчиков','Экономия 50–100 000 ₽/мес на аутсорсе'],
+  },
+  entrepreneur: {
+    before: ['Рутина съедает 4–5 часов каждый день','Найм дорого: зарплата + обучение + риск','Поддержка клиентов — только в рабочие часы','Рост бизнеса = больше людей = больше расходов'],
+    after:  ['Рутина автоматизирована — экономишь 3–4 ч/день','1 сотрудник с ИИ = 3 без ИИ по выработке','Бот отвечает клиентам 24/7 без тебя','Масштабируешься без найма новых людей'],
+  },
+  freelancer: {
+    before: ['Один заказ — 4–8 часов работы','Берёшь 3–4 проекта в месяц — потолок','Конкурируешь ценой — снижаешь ставку','Высокочековые задачи не берёшь — нет навыков'],
+    after:  ['Тот же заказ — 1–2 часа с ИИ','8–12 проектов в месяц при тех же усилиях','Продаёшь комплексные услуги дороже','Зарабатываешь 80 000–150 000 ₽/мес'],
+  },
+  accountant: {
+    before: ['Каждое письмо — 20–30 минут составления','Отчёты и сводки — рутина на полдня','Поиск нужного в документах — долго','ИИ кажется сложным и не для бухгалтера'],
+    after:  ['Деловое письмо с ChatGPT — 2 минуты','Резюме любого документа — 30 секунд','Poиск по законам через Perplexity — мгновенно','Экономишь 2–3 рабочих часа каждый день'],
+  },
+  designer: {
+    before: ['Референсы и мудборды — часы поиска','5 вариантов клиенту — неделя работы','Сложно объяснить идею словами на брифе','Конкуренты с Midjourney берут быстрее и дешевле'],
+    after:  ['10 референсов с Midjourney — 20 минут','5 концептов клиенту — за 1 час работы','Показываешь готовый визуал сразу на встрече','Твои услуги дороже — потому что быстрее и больше'],
+  },
+  hr: {
+    before: ['Вакансия — час согласований и написания','Скрининг 50 резюме — целый рабочий день','Письма кандидатам — однотипная рутина','Адаптационные материалы делаешь неделями'],
+    after:  ['Вакансия с ChatGPT — 10 минут, 3 варианта','50 резюме проанализированы за 30 минут','Шаблоны ответов — написал один раз навсегда','Онбординг-бот отвечает новичкам 24/7'],
+  },
+  employee: {
+    before: ['Письма и отчёты — 1–2 часа в день на рутину','Поиск нужной информации — долго и не всегда точно','Коллеги с ИИ делают больше за то же время','На совещаниях тратишь время на то, что можно автоматизировать'],
+    after:  ['Деловое письмо с ChatGPT — 2 минуты вместо часа','Поиск данных через Perplexity — мгновенно со ссылками','Отчёты, протоколы, резюме документов — автоматически','Становишься самым продуктивным в команде'],
+  },
+  unemployed: {
+    before: ['Резюме пишешь долго — всё равно нет ответов','Не знаешь, какие навыки актуальны на рынке','На подготовку к собеседованию уходит несколько дней','Кажется, что без опыта с ИИ не угнаться за другими'],
+    after:  ['Резюме и письмо в компанию — 15 минут с ChatGPT','Анализ рынка вакансий и востребованных навыков — за час','Подготовка к интервью: ИИ задаёт вопросы и даёт обратную связь','Навыки ИИ — конкурентное преимущество перед 90% кандидатов'],
+  },
+  default: {
+    before: ['Делаешь рутинные задачи вручную','Тратишь часы на тексты и контент','Работа = много времени, мало отдачи','Конкуренты с ИИ обгоняют'],
+    after:  ['Автоматизируешь рутину за минуты','Создаёшь тексты, картинки, видео с ИИ','Делаешь в 5× больше за то же время','Зарабатываешь до 200 000 ₽/мес'],
+  },
+};
+
+// Подписи калькулятора по цели
+const CALC_SUBS = {
+  earn:     'Двигай ползунок — посмотри, сколько можешь зарабатывать',
+  optimize: 'Двигай ползунок — посмотри, сколько времени будешь экономить каждый день',
+  scale:    'Двигай ползунок — посмотри, как ускорится рост твоего дела',
+  learn:    'Двигай ползунок — посмотри, как быстро дойдёшь до первого дохода',
+};
+const DEFAULT_CALC_SUB = 'Выбери цель выше — ползунок покажет твой результат';
+
+// Базовый доход в час по профессии (₽)
+const CALC_BASE = {
+  smm: 3500, marketer: 4200, entrepreneur: 3000, freelancer: 5000,
+  accountant: 2000, designer: 5500, hr: 2000, employee: 2000, unemployed: 2500, other: 3500,
+};
+
+// Динамическая 3-я статистика по профессии
+const DYNAMIC_STAT3 = {
+  smm:         { num:'4×',    cls:'green', desc:'ускорение создания контента с ИИ-инструментами',   src:'исследования рынка, 2024' },
+  marketer:    { num:'83%',   cls:'green', desc:'маркетологов экономят время с ИИ в работе',        src:'HubSpot, 2024' },
+  entrepreneur:{ num:'3,7×',  cls:'green', desc:'средний ROI от внедрения ИИ в бизнес-процессы',    src:'McKinsey, 2024' },
+  freelancer:  { num:'3×',    cls:'green', desc:'выше оплата ИИ-проектов по сравнению с обычными',  src:'Upwork, 2025' },
+  accountant:  { num:'40%',   cls:'green', desc:'офисных задач автоматизируемы с ИИ прямо сейчас',  src:'McKinsey, 2024' },
+  designer:    { num:'5×',    cls:'green', desc:'быстрее создание концептов с Midjourney vs вручную', src:'по данным пользователей' },
+  hr:          { num:'50%',   cls:'green', desc:'времени на скрининг резюме экономится с ИИ',        src:'LinkedIn, 2024' },
+  employee:    { num:'40%',   cls:'green', desc:'офисных задач автоматизируемы с ИИ прямо сейчас',   src:'McKinsey, 2024' },
+  unemployed:  { num:'73%',   cls:'green', desc:'работодателей предпочитают кандидатов с навыками ИИ', src:'Microsoft, 2024' },
+};
+
+const ACCENTS = {
+  'smm+earn':          'Твои главные шаги — 1 и 3. Уже через месяц-два можно брать заказы на контент + визуал от 15 000 ₽/мес.',
+  'smm+optimize':      'Шаги 1 и 3 ускорят работу в 4–5 раз: посты с ChatGPT, визуалы с Midjourney — 4 часа → 30 минут.',
+  'smm+scale':         'Шаги 1, 3 и 5 позволят автоматизировать ведение соцсетей для нескольких клиентов одновременно.',
+  'smm+learn':         'Начни с шага 1 — ChatGPT для текстов. Быстро, просто, результат виден сразу. Потом шаг 3 — полный контент-пакет.',
+  'marketer+earn':     'Шаги 1, 2 и 3 — твоя связка. Тексты + аналитика + визуал = комплексные услуги с высоким чеком.',
+  'marketer+optimize': 'Perplexity (шаг 2) для исследований + ChatGPT (шаг 1) для гипотез. Экономия 10+ часов на каждый запуск.',
+  'marketer+scale':    'С шагами 1–3 масштабируй маркетинг без роста команды: больше кампаний, каналов, тестов гипотез.',
+  'marketer+learn':    'Начни с шага 1 — промпты для рекламы и ЦА. Применяй сразу на своих кампаниях.',
+  'entrepreneur+earn': 'Шаги 1 и 5. Сначала автоматизируй переписку, потом создай бота, который продаёт 24/7 вместо тебя.',
+  'entrepreneur+optimize':'Шаг 1 — ускорение коммуникации. Шаг 5 — бот снимает рутину с команды. ROI виден в первый месяц.',
+  'entrepreneur+scale':'Шаги 4 и 5 критичны: внедрение ИИ + боты = масштаб без найма. Один человек с ИИ = команда из пяти.',
+  'entrepreneur+learn':'Начни с шага 1 — за 2 часа научишься делать за минуты то, на что уходил час. Дальше автоматизируешь бизнес.',
+  'freelancer+earn':   'Все 5 шагов — арсенал для разных клиентов и чеков. Больше навыков = выше ставка. Добавляй услуги по одной.',
+  'freelancer+optimize':'Шаг 1 даёт скорость × 5. День работы → 2 часа. Больше проектов при тех же усилиях.',
+  'freelancer+scale':  'Шаги 3 и 5 — самые высокочековые: визуал + боты. Два направления с самым быстрым ростом дохода.',
+  'freelancer+learn':  'Начни с шага 1, почувствуй разницу, потом добавляй шаги один за другим. К шагу 5 — новый уровень.',
+  'accountant+optimize':'Шаги 1 и 2 — письма, резюме документов, поиск по данным. Экономия 2–3 часов каждый рабочий день.',
+  'accountant+learn':  'Начни с ChatGPT для писем и отчётов. Просто описываешь задачу — получаешь текст. За неделю станет привычкой.',
+  'designer+earn':     'Шаги 3 и 4 — твои ключевые. Midjourney ускоряет в 3–5 раз. ИИ-видео — новая дорогая услуга в портфолио.',
+  'designer+optimize': 'Генерируй концепты и референсы за минуты вместо часов поиска. Шаг 3 — ускорение, а не замена твоей работы.',
+  'hr+optimize':       'Шаги 1 и 2 — вакансии, офер-письма, скрининг резюме. Gemini поможет с поиском кандидатов.',
+  'hr+learn':          'Начни с шага 1 — вакансии и письма кандидатам. Сразу видно, как ускоряется рутина. Дальше — больше.',
+  'hr+earn':           'ChatGPT для вакансий и документов — первый шаг. Потом шаг 5: бот-скрининг как отдельная услуга для компаний.',
+  'hr+scale':          'Шаги 1 и 5 дают масштаб: обрабатываешь в 3× больше кандидатов без роста команды. Бот — постоянно работающий HR-ассистент.',
+  'accountant+earn':   'Шаги 1 и 2 экономят тебе 2–3 часа каждый день. Это время — на дополнительных клиентов или консультации от 5 000 ₽.',
+  'accountant+scale':  'Ключевой шаг 2: Perplexity + GigaChat дают скорость анализа × 5. Обслуживаешь больше клиентов без роста трудозатрат.',
+  'designer+scale':    'Шаги 3 и 4 дают масштаб: в 5 раз больше концептов за то же время = больше клиентов = выше доход без переработок.',
+  'designer+learn':    'Начни с Midjourney на шаге 3 — результат виден через 30 минут. Это не замена твоему таланту, а ускоритель твоей работы.',
+  'freelancer+scale':  'Шаги 3 и 5 — самый быстрый рост: визуал + боты. Два направления, где клиенты готовы платить в 2–3 раза выше среднего.',
+  'employee+earn':     'Шаг 1 сэкономит 2–3 часа каждый день. Это время — на подработки, консультации или карьерный рост внутри компании.',
+  'employee+optimize': 'Шаги 1 и 2 — письма, отчёты, поиск информации. Perplexity + ChatGPT экономят 2–3 рабочих часа ежедневно.',
+  'employee+scale':    'Шаги 1 и 5 дают масштаб: автоматизируешь рутину команды, берёшь на себя больше задач и становишься незаменимым.',
+  'employee+learn':    'Начни с шага 1 — попроси ChatGPT составить письмо или отчёт. За неделю войдёт в привычку, и рутина станет в разы быстрее.',
+  'unemployed+earn':   'Шаги 1 и 3 — старт в ИИ-фрилансе: тексты, визуалы, резюме под заказ. Первые 5 000–15 000 ₽ можно заработать уже через 2–3 недели.',
+  'unemployed+optimize':'Шаги 1 и 2 — автоматизируй поиск работы: резюме, письма, подготовка к интервью. С ИИ на это уходят часы, а не дни.',
+  'unemployed+scale':  'Шаги 1, 3 и 5 — построй свою ИИ-услугу и масштабируй её через фриланс-платформы без вложений.',
+  'unemployed+learn':  'Начни с шага 1 — ChatGPT поможет составить резюме и подготовиться к собеседованию прямо сейчас. Один навык — большой отрыв от конкурентов.',
+};
+const DEFAULT_ACCENT = 'Выбери профиль в панели менеджера — и карта настроится под твои задачи и цели.';
+
+const STEPS = {
+  'smm+never':         ['Зарегистрируйся в ChatGPT, попроси написать пост для своей ниши', 'Сравни 3 поста — AI vs твои. Почувствуй разницу в скорости'],
+  'smm+tried':         ['Попробуй GPTs — готовые помощники под контент-задачи', 'Зарегистрируйся в Midjourney: первый визуал за 10 минут'],
+  'smm+uses':          ['Перейди к Midjourney — первый пакет «текст + картинка» для клиента', 'Создай шаблон промпта для своей ниши и сохрани'],
+  'smm+implement':     ['Изучи Midjourney глубоко — предложи визуал как услугу клиентам', 'Настрой бота для приёма заявок на ведение соцсетей'],
+  'entrepreneur+never':['Попроси ChatGPT написать КП — удивишься качеству. Займёт 5 минут', 'Делегируй ИИ одно письмо или документ сегодня же'],
+  'entrepreneur+tried':['Опиши ChatGPT свой бизнес-процесс — пусть предложит, что автоматизировать', 'Посмотри шаг 5 — бот для бизнеса реальнее, чем кажется'],
+  'entrepreneur+uses': ['Начни строить бота (шаг 5): опиши задачи, которые занимают время команды', 'Изучи Coze — без кода, первый рабочий бот за 1 день'],
+  'entrepreneur+implement':['Опиши процессы, которые можно автоматизировать прямо сейчас', 'Прототип бота на Coze для одного отдела за эту неделю'],
+  'designer+never':    ['Зарегистрируйся в Midjourney — первый концепт для клиента сегодня', 'Сгенерируй 5 вариантов логотипа — покажи клиенту на выбор'],
+  'designer+tried':    ['Углуби работу с промптами — детализация, стили, параметры Midjourney', 'Попробуй ИИ-видео (шаг 4) — это новая услуга с высоким чеком'],
+  'designer+uses':     ['Освой ИИ-видео и анимации — шаг 4, новая дорогая услуга', 'Предложи клиентам пакет: дизайн + видео-версия'],
+  'freelancer+never':  ['Зарегистрируйся в ChatGPT — напиши текст под первый тип заказов', 'За неделю: 3 задачи с ИИ. Замерь сколько времени сэкономил'],
+  'freelancer+tried':  ['Собери пакет: текст + визуал = чек выше', 'Освой 1 новый инструмент в неделю — за месяц арсенал удвоится'],
+  'accountant+never':  ['Попроси ChatGPT составить деловое письмо — проверь, как тебе такое', 'Сделай резюме таблицы: вставь данные, попроси ИИ объяснить'],
+  'accountant+optimize':['Сохрани промпты для типовых писем — один раз и навсегда', 'Попробуй Perplexity для поиска в документах и нормативах'],
+  'hr+never':          ['Попроси ChatGPT написать вакансию — получи за 2 минуты', 'Сгенерируй 3 варианта офер-письма — выбери лучший'],
+  'hr+tried':          ['Попробуй Gemini для скрининга: вставь резюме, попроси оценить по критериям', 'Освой промпты для адаптационных материалов новых сотрудников'],
+  'employee+never':    ['Попроси ChatGPT написать деловое письмо — замерь, сколько сэкономил минут', 'Сделай резюме любого документа — вставь текст, попроси ИИ изложить суть'],
+  'employee+tried':    ['Сохрани промпты для 3 типовых задач — письма, отчёты, ответы', 'Попробуй Perplexity для поиска информации: результат со ссылками за секунды'],
+  'employee+uses':     ['Попробуй шаг 2 — Perplexity и GigaChat для аналитики и поиска данных', 'Предложи коллегам простой шаблон промпта — стань ИИ-евангелистом в команде'],
+  'employee+implement':['Составь список из 5 своих рутинных задач и автоматизируй одну с ИИ прямо сейчас', 'Изучи шаг 5 — боты для автоматизации корпоративных процессов без кода'],
+  'unemployed+never':  ['Попроси ChatGPT улучшить твоё резюме — вставь текущий вариант и получи усиленную версию', 'Попроси ИИ задать тебе 5 вопросов на собеседование по нужной вакансии — потренируйся'],
+  'unemployed+tried':  ['Попробуй Perplexity — найди актуальные вакансии и востребованные навыки в своей сфере', 'Создай сопроводительное письмо под конкретную вакансию: вставь текст вакансии, попроси ChatGPT написать письмо'],
+  'unemployed+uses':   ['Освой шаг 3 — создай портфолио-визуалы с Midjourney даже без опыта в дизайне', 'Попробуй себя во фрилансе: разместись на бирже с услугой «тексты с ИИ» или «резюме под заказ»'],
+  'unemployed+implement':['Сформируй пакет ИИ-услуг и разместись на Kwork или Fiverr — это реальный доход без вложений', 'Изучи шаг 5 — автоматизация процессов. Это один из самых высокооплачиваемых навыков прямо сейчас'],
+};
+const DEFAULT_STEPS = ['Открой ChatGPT прямо сейчас — напиши первый промпт под свою реальную задачу. Почувствуй разницу.','Выбери одно дело, которое давно откладывал — и сделай его сегодня с ИИ. Один раз — и ты уже понимаешь, зачем это.'];
+
+// ================================================================
+// СОСТОЯНИЕ
+// ================================================================
+let state = { prof: null, goal: null, level: null };
+let checkedPhases = new Set();
+
+// ================================================================
+// ЗАГРУЗКА ИЗ URL ПАРАМЕТРОВ
+// ================================================================
+function loadFromURL() {
+  const p = new URLSearchParams(location.search);
+  if (p.get('name')) document.getElementById('panelName').value = p.get('name');
+  if (p.get('contact')) document.getElementById('panelContact').value = p.get('contact');
+  if (p.get('startdate')) document.getElementById('panelStartDate').value = p.get('startdate');
+  if (p.get('step1')) document.getElementById('panelStep1').value = decodeURIComponent(p.get('step1'));
+  if (p.get('step2')) document.getElementById('panelStep2').value = decodeURIComponent(p.get('step2'));
+
+  ['prof','goal','level'].forEach(g => {
+    const v = p.get(g);
+    if (v && PROFILES[g]?.[v] !== undefined || (g==='goal' && PROFILES.goal[v]) || (g==='level' && PROFILES.level[v])) {
+      state[g] = v;
+      document.querySelector(`.pill[data-group="${g}"][data-val="${v}"]`)?.classList.add('active');
+    }
+  });
+
+  updateMap();
+
+  // Показать приветствие клиенту
+  if (p.get('client') === '1' && p.get('name')) {
+    showWelcome(p.get('name'));
+  }
+
+  // Видимость панели менеджера — в applyManagerPanelFromURLAndStorage() после загрузки
+
+  // Прогресс не подгружаем из localStorage — полоса и дорога заполняются только вручную (галочки)
+
+  // Показать кнопки для клиента
+  if (p.get('client') === '1') {
+    document.getElementById('shareBtn').style.display = 'block';
+    const contact = p.get('contact');
+    if (contact) {
+      const btn = document.getElementById('readyBtn');
+      btn.style.display = 'flex';
+      const name = p.get('name') || '';
+      if (contact.startsWith('@') || !contact.match(/^\d/)) {
+        const username = contact.replace('@','');
+        const msg = encodeURIComponent(`Привет! Я изучил свою карту и готов начать.${name ? ' — ' + name : ''}`);
+        btn.href = `https://t.me/${username}?text=${msg}`;
+        document.getElementById('readyBtnText').textContent = 'Я готов начать → написать в Telegram';
+      } else {
+        const phone = contact.replace(/\D/g,'');
+        const msg = encodeURIComponent(`Привет! Я изучил свою карту и готов начать.${name ? ' — ' + name : ''}`);
+        btn.href = `https://wa.me/${phone}?text=${msg}`;
+        document.getElementById('readyBtnText').textContent = 'Я готов начать → написать в WhatsApp';
+      }
+    }
+    // Обратный отсчёт
+    const startdate = p.get('startdate');
+    if (startdate) {
+      document.getElementById('countdownCard').style.display = 'block';
+      startCountdown(new Date(startdate));
+    }
+  }
+}
+
+// ================================================================
+// ПРИВЕТСТВИЕ
+// ================================================================
+function showWelcome(name) {
+  const overlay = document.getElementById('welcomeOverlay');
+  overlay.style.display = 'flex';
+  document.getElementById('welcomeName').textContent = name + ',';
+
+  setTimeout(() => document.getElementById('welcomeName').classList.add('visible'), 100);
+  setTimeout(() => document.getElementById('welcomeTagline').classList.add('visible'), 600);
+  setTimeout(() => document.getElementById('welcomeSub').classList.add('visible'), 900);
+  setTimeout(() => {
+    document.getElementById('welcomeBarWrap').classList.add('visible');
+    setTimeout(() => document.getElementById('welcomeBarFill').classList.add('go'), 50);
+  }, 1200);
+  setTimeout(() => {
+    overlay.classList.add('fade-out');
+    setTimeout(() => overlay.style.display = 'none', 800);
+  }, 3800);
+}
+
+// ================================================================
+// ОБНОВЛЕНИЕ КАРТЫ
+// ================================================================
+function updateMap() {
+  const name    = document.getElementById('panelName').value.trim();
+  const contact = document.getElementById('panelContact').value.trim();
+  const { prof, goal, level } = state;
+
+  // Имя
+  const nd = document.getElementById('clientNameDisplay');
+  nd.textContent = name ? name + ', это твоя карта' : '';
+
+  // Профиль
+  document.getElementById('profileProf').textContent  = prof  ? PROFILES.prof[prof].label    : '—';
+  document.getElementById('profileGoal').textContent  = goal  ? PROFILES.goal[goal]           : '—';
+  document.getElementById('profileLevel').textContent = level ? PROFILES.level[level].label   : '—';
+
+  // Акцент
+  const ak = prof && goal ? `${prof}+${goal}` : null;
+  document.getElementById('accentText').textContent = (ak && ACCENTS[ak]) ? ACCENTS[ak] : DEFAULT_ACCENT;
+
+  // Шаги
+  const s1 = document.getElementById('panelStep1').value.trim();
+  const s2 = document.getElementById('panelStep2').value.trim();
+  const levelShort = level === 'implement' ? 'implement' : level;
+  const sk = prof && levelShort ? `${prof}+${levelShort}` : null;
+  const as = (sk && STEPS[sk]) ? STEPS[sk] : DEFAULT_STEPS;
+  document.getElementById('step1text').textContent = s1 || as[0];
+  document.getElementById('step2text').textContent = s2 || (as[1] || '');
+
+  // Услуги
+  for (let i = 1; i <= 5; i++) {
+    const ul = document.getElementById('services' + i);
+    const sv = prof && SERVICES[prof]?.[i];
+    ul.innerHTML = sv ? sv.map(s=>`<li>${s}</li>`).join('') : getDefaultService(i);
+  }
+
+  // Заработок
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('earn' + i).innerHTML = goal ? EARN[goal][i-1] : getDefaultEarn(i);
+  }
+
+  // Блок До/После — по профессии
+  const tr = TRANSFORM[prof] || TRANSFORM.default;
+  for (let i = 1; i <= 4; i++) {
+    const b = document.getElementById('before' + i);
+    const a = document.getElementById('after'  + i);
+    if (b) b.textContent = tr.before[i-1];
+    if (a) a.textContent = tr.after[i-1];
+  }
+
+  // Динамическая 3-я статистика — по профессии
+  const ds = prof ? DYNAMIC_STAT3[prof] : null;
+  if (ds) {
+    const numEl  = document.getElementById('stat3num');
+    const descEl = document.getElementById('stat3desc');
+    const srcEl  = document.getElementById('stat3src');
+    if (numEl)  { numEl.textContent = ds.num; numEl.className = 'stat-num ' + ds.cls; }
+    if (descEl) descEl.textContent = ds.desc;
+    if (srcEl)  srcEl.textContent  = ds.src;
+  }
+
+  // Калькулятор — обновить под цель + профессию
+  updateCalc(document.getElementById('calcSlider').value);
+
+  // Бейджи
+  applyBadges();
+}
+
+function applyBadges() {
+  const { prof, level } = state;
+  const keyPhases  = prof  ? PROFILES.prof[prof].keyPhases      : [];
+  const donePhases = level ? PROFILES.level[level].donePhases   : [];
+
+  for (let i = 1; i <= 5; i++) {
+    const row   = document.getElementById('step' + i);
+    const badge = document.getElementById('badge' + i);
+    row.classList.remove('phase-done','phase-key');
+    badge.className = 'phase-badge';
+    badge.textContent = '';
+
+    if (checkedPhases.has(i)) {
+      badge.className = 'phase-badge badge-done';
+      badge.textContent = '✓ Пройдено';
+    } else if (donePhases.includes(i)) {
+      row.classList.add('phase-done');
+      badge.className = 'phase-badge badge-done';
+      badge.textContent = '✓ Уже знаешь';
+    } else if (keyPhases.includes(i)) {
+      row.classList.add('phase-key');
+      badge.className = 'phase-badge badge-key';
+      badge.textContent = '⭐ Важный шаг';
+    }
+  }
+}
+
+function getDefaultService(i) {
+  return [
+    '<li>Посты, контент-планы, ведение соцсетей</li>',
+    '<li>Контент в разных сервисах, простые боты</li>',
+    '<li>Тексты + визуалы, баннеры, креатив</li>',
+    '<li>Видео, логотипы, внедрение ИИ</li>',
+    '<li>Боты под ключ, обучение, консалтинг</li>',
+  ][i-1];
+}
+function getDefaultEarn(i) {
+  return ['3 000–50 000 ₽/мес','Больше заказов','50 000–120 000 ₽/мес','15 000–80 000 ₽ и выше','80 000–200 000+ ₽'][i-1];
+}
+
+// ================================================================
+// КАЛЬКУЛЯТОР ДОХОДА
+// ================================================================
+function updateCalc(hours) {
+  hours = parseInt(hours);
+  document.getElementById('calcHoursNum').textContent = hours;
+
+  // Ползунок цвет
+  const slider = document.getElementById('calcSlider');
+  const pct = ((hours - 1) / 19 * 100).toFixed(1);
+  slider.style.background = `linear-gradient(90deg, var(--accent) ${pct}%, var(--border) ${pct}%)`;
+
+  const goal = state.goal;
+  const prof = state.prof;
+
+  // Подпись под заголовком — меняется по цели
+  const subEl = document.getElementById('calcSub');
+  if (subEl) subEl.textContent = (goal && CALC_SUBS[goal]) ? CALC_SUBS[goal] : DEFAULT_CALC_SUB;
+
+  if (goal === 'optimize') {
+    // Время: от 6 мин/день при 1ч/нед до 80 мин/день при 20ч/нед
+    const minsPerDay = Math.round(hours * 4);
+    set('calcM1', `${Math.round(minsPerDay * 0.35)} мин/день`, 'green', 'первые привычки');
+    set('calcM3', `${Math.round(minsPerDay * 0.7)} мин/день`, 'green', 'системная экономия');
+    set('calcM6', `${minsPerDay}+ мин/день`, 'green', 'полная автоматизация');
+    document.getElementById('calcM3').parentElement.classList.add('highlight');
+  } else if (goal === 'scale') {
+    const x = Math.max(0.1, hours / 10);
+    set('calcM1', `+${Math.round(x * 15)}%`, 'green', 'рост продуктивности');
+    set('calcM3', `×${(1 + x * 0.9).toFixed(1)}`, 'green', 'к текущей выработке');
+    set('calcM6', `×${(1 + x * 1.8).toFixed(1)}`, 'green', 'масштаб без найма');
+    document.getElementById('calcM6').parentElement.classList.add('highlight');
+  } else {
+    // earn / learn / default — рублёвый, зависит от профессии
+    const base = hours * (CALC_BASE[prof] || 3500);
+    const m1 = Math.round(base * 0.75 / 1000) * 1000;
+    const m3 = Math.round(base * 2.4 / 1000) * 1000;
+    const m6 = Math.round(base * 5.0 / 1000) * 1000;
+    set('calcM1', fmt(m1), '', 'первые заказы');
+    set('calcM3', fmt(m3), '', 'стабильный поток');
+    set('calcM6', fmt(m6), '', 'полный арсенал');
+    document.getElementById('calcM3').parentElement.classList.add('highlight');
+  }
+}
+
+function set(id, val, cls, note) {
+  const el = document.getElementById(id);
+  const noteId = id + 'note';
+  el.textContent = val;
+  el.className = 'calc-result-value' + (cls === 'green' ? ' green' : '');
+  if (document.getElementById(noteId)) document.getElementById(noteId).textContent = note;
+}
+
+function fmt(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + ' млн ₽';
+  return n.toLocaleString('ru-RU') + ' ₽';
+}
+
+// ================================================================
+// ПРОГРЕСС ТРЕКЕР
+// ================================================================
+function togglePhase(i) {
+  if (checkedPhases.has(i)) {
+    checkedPhases.delete(i);
+    applyPhaseCheck(i, false);
+  } else {
+    checkedPhases.add(i);
+    applyPhaseCheck(i, true);
+  }
+  saveProgress();
+  updateProgressBar();
+  updateRoadProgress();
+  applyBadges();
+}
+
+function applyPhaseCheck(i, checked) {
+  const row = document.getElementById('step' + i);
+  const btn = document.getElementById('checkBtn' + i);
+  row.classList.toggle('phase-checked', checked);
+  if (btn) {
+    btn.classList.toggle('checked', checked);
+    btn.textContent = checked ? '✓ Пройдено!' : '☐ Отметить как пройденную';
+  }
+}
+
+function updateProgressBar() {
+  const done = checkedPhases.size;
+  document.getElementById('progressCount').textContent = done + ' / 5';
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('dot' + i).classList.toggle('done', checkedPhases.has(i));
+  }
+}
+
+function updateRoadProgress() {
+  const roadEl = document.getElementById('roadProgress');
+  if (!roadEl) return;
+  const mapRoad = document.querySelector('.map-road');
+  if (!mapRoad) return;
+  const totalH = mapRoad.offsetHeight - 56;
+  roadEl.style.height = Math.max(0, (checkedPhases.size / 5) * totalH) + 'px';
+}
+
+function saveProgress() {
+  // Не сохраняем в localStorage — прогресс только за текущий просмотр страницы
+}
+
+// ================================================================
+// ОБРАТНЫЙ ОТСЧЁТ
+// ================================================================
+function startCountdown(targetDate) {
+  function tick() {
+    const now  = new Date();
+    const diff = targetDate - now;
+    if (diff <= 0) {
+      document.getElementById('cdDays').textContent  = '00';
+      document.getElementById('cdHours').textContent = '00';
+      document.getElementById('cdMins').textContent  = '00';
+      return;
+    }
+    const days  = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins  = Math.floor((diff % 3600000) / 60000);
+    document.getElementById('cdDays').textContent  = String(days).padStart(2,'0');
+    document.getElementById('cdHours').textContent = String(hours).padStart(2,'0');
+    document.getElementById('cdMins').textContent  = String(mins).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick, 30000);
+}
+
+// ================================================================
+// ПИЛЮЛИ
+// ================================================================
+document.querySelectorAll('.pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    const g = pill.dataset.group, v = pill.dataset.val;
+    document.querySelectorAll(`.pill[data-group="${g}"]`).forEach(p => p.classList.remove('active'));
+    state[g] = state[g] === v ? null : v;
+    if (state[g]) pill.classList.add('active');
+    updateMap();
+  });
+});
+
+// ================================================================
+// КОПИРОВАТЬ ССЫЛКУ ДЛЯ КЛИЕНТА
+// ================================================================
+function copyClientLink() {
+  const base = location.origin + location.pathname;
+  const p = new URLSearchParams();
+  const name    = document.getElementById('panelName').value.trim();
+  const contact = document.getElementById('panelContact').value.trim();
+  const date    = document.getElementById('panelStartDate').value;
+  const s1      = document.getElementById('panelStep1').value.trim();
+  const s2      = document.getElementById('panelStep2').value.trim();
+
+  if (name)    p.set('name', name);
+  if (state.prof)  p.set('prof', state.prof);
+  if (state.goal)  p.set('goal', state.goal);
+  if (state.level) p.set('level', state.level);
+  if (contact) p.set('contact', contact);
+  if (date)    p.set('startdate', date);
+  if (s1)      p.set('step1', s1);
+  if (s2)      p.set('step2', s2);
+  p.set('client', '1');
+
+  const url = base + '?' + p.toString();
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => showCopied('copyLinkBtn'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = url; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showCopied('copyLinkBtn');
+  }
+}
+
+function showCopied(id) {
+  const btn = document.getElementById(id);
+  const orig = btn.textContent;
+  btn.textContent = '✓ Ссылка скопирована!';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2500);
+}
+
+// ================================================================
+// ПОДЕЛИТЬСЯ (клиент)
+// ================================================================
+function shareCard() {
+  const url = location.href;
+  if (navigator.share) {
+    navigator.share({ title: 'Моя карта пути по нейросетям', url });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.getElementById('shareBtn');
+      btn.textContent = '✓ Ссылка скопирована!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📤 Поделиться своей картой'; btn.classList.remove('copied'); }, 2500);
+    });
+  }
+}
+
+// ================================================================
+// ИНИЦИАЛИЗАЦИЯ
+// ================================================================
+// Авто-дата
+const d = new Date();
+document.getElementById('footer-date').textContent =
+  String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
+
+// Дата по умолчанию = 3 дня
+const defDate = new Date(); defDate.setDate(defDate.getDate() + 3);
+document.getElementById('panelStartDate').value = defDate.toISOString().split('T')[0];
+
+// Прогресс дороги после рендера
+window.addEventListener('load', () => { updateRoadProgress(); });
+
+// Верхняя полоса шагов: без автоподсветки при скролле и без смены от профиля — остаётся как в разметке
+
+// ================================================================
+// СВОРАЧИВАНИЕ ПАНЕЛИ МЕНЕДЖЕРА
+// ================================================================
+const MANAGER_PANEL_LS = 'managerPanelCollapsed';
+
+/** Синхронизация панели с URL и localStorage (в т.ч. после возврата по bfcache) */
+function applyManagerPanelFromURLAndStorage() {
+  const p = new URLSearchParams(location.search);
+  const panel = document.getElementById('managerPanel');
+  const strip = document.getElementById('managerPanelReopenStrip');
+  if (!panel || !strip) return;
+
+  if (p.get('client') === '1') {
+    panel.style.display = 'none';
+    panel.classList.remove('is-hidden');
+    strip.setAttribute('hidden', '');
+    return;
+  }
+
+  // Режим менеджера: сбрасываем inline display (иначе после client=1 + «Назад» панель остаётся скрытой)
+  panel.style.removeProperty('display');
+
+  if (localStorage.getItem(MANAGER_PANEL_LS) === '1') {
+    panel.classList.add('is-hidden');
+    strip.hidden = false;
+  } else {
+    panel.classList.remove('is-hidden');
+    strip.hidden = true;
+  }
+}
+
+function initManagerPanelToggle() {
+  const hideBtn = document.getElementById('managerPanelHideBtn');
+  const reopenBtn = document.getElementById('managerPanelReopenBtn');
+  if (!hideBtn || !reopenBtn) return;
+
+  hideBtn.addEventListener('click', () => {
+    localStorage.setItem(MANAGER_PANEL_LS, '1');
+    applyManagerPanelFromURLAndStorage();
+    requestAnimationFrame(() => { try { updateRoadProgress(); } catch (e) {} });
+  });
+
+  reopenBtn.addEventListener('click', () => {
+    localStorage.setItem(MANAGER_PANEL_LS, '0');
+    applyManagerPanelFromURLAndStorage();
+    requestAnimationFrame(() => { try { updateRoadProgress(); } catch (e) {} });
+  });
+
+  window.addEventListener('pageshow', (ev) => {
+    if (ev.persisted) applyManagerPanelFromURLAndStorage();
+  });
+
+  applyManagerPanelFromURLAndStorage();
+}
+
+// Загрузка
+loadFromURL();
+initManagerPanelToggle();
+updateCalc(5);
+</script>
+</body>
+</html>

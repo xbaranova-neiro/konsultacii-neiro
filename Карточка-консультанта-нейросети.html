@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Карта консультации — нейросети</title>
+  <style>
+    @media print { body { margin: 0; padding: 8mm; } .no-print { display: none; } .map-road, .map-stop { break-inside: avoid; } }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 11px;
+      line-height: 1.4;
+      color: #1a1a1a;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+
+    .map-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .map-header h1 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0c4a6e;
+      margin: 0 0 4px;
+      letter-spacing: -0.02em;
+    }
+    .map-header p {
+      font-size: 12px;
+      color: #475569;
+      margin: 0;
+    }
+
+    /* Карта: дорога с тремя точками */
+    .map-road {
+      position: relative;
+      margin: 0 0 24px;
+      padding: 0 20px;
+    }
+    .map-road::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 48px;
+      bottom: 48px;
+      width: 6px;
+      margin-left: -3px;
+      background: repeating-linear-gradient(180deg, #0ea5e9 0, #0ea5e9 12px, transparent 12px, transparent 20px);
+      border-radius: 3px;
+      z-index: 0;
+    }
+    .map-stop {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .map-stop:last-child { margin-bottom: 0; }
+    .map-pin {
+      flex-shrink: 0;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #0ea5e9, #0284c7);
+      color: #fff;
+      font-weight: 800;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+      border: 3px solid #fff;
+    }
+    .map-stop.during .map-pin { background: linear-gradient(145deg, #059669, #047857); box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4); }
+    .map-stop.after .map-pin { background: linear-gradient(145deg, #6366f1, #4f46e5); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }
+    .map-stop-content {
+      flex: 1;
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 18px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .map-stop-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0c4a6e;
+      margin: 0 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #0ea5e9;
+    }
+    .map-stop.during .map-stop-title { border-bottom-color: #059669; }
+    .map-stop.after .map-stop-title { border-bottom-color: #6366f1; }
+    .map-stop-content h3 { font-size: 11px; margin: 10px 0 4px; color: #475569; }
+    .map-stop-content p { margin: 4px 0; }
+    .map-stop-content ul { margin: 4px 0; padding-left: 18px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 10px; margin: 8px 0; }
+    th, td { border: 1px solid #e2e8f0; padding: 4px 8px; text-align: left; }
+    th { background: #f8fafc; color: #475569; }
+    .fill { border-bottom: 1px dotted #94a3b8; min-height: 14px; display: inline-block; min-width: 50px; }
+    input.fill {
+      border: none;
+      border-bottom: 1.5px solid #0ea5e9;
+      background: transparent;
+      font: inherit;
+      font-size: 10px;
+      color: #0c4a6e;
+      outline: none;
+      padding: 0 2px;
+      min-width: 80px;
+      width: 120px;
+    }
+    input.fill:focus { border-bottom-color: #0284c7; background: #f0f9ff; border-radius: 2px; }
+    input.fill.wide { width: 200px; }
+    @media print { input.fill { border-bottom-color: #94a3b8; background: transparent; } }
+    .send-box { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 10px 12px; margin-top: 8px; }
+    .send-box ol { margin: 4px 0 0; padding-left: 18px; }
+    .meta { font-size: 10px; color: #64748b; margin-top: 20px; text-align: center; }
+    .no-print { margin-top: 16px; text-align: center; }
+    .no-print button { padding: 10px 20px; background: #0ea5e9; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="map-header">
+    <h1>Карта консультации</h1>
+    <p>Нейросети и потребности клиента · Двигайся по точкам: подготовка → консультация → отправка карты</p>
+  </div>
+
+  <div class="map-road">
+    <!-- Точка 1: До консультации -->
+    <div class="map-stop">
+      <div class="map-pin">1</div>
+      <div class="map-stop-content">
+        <div class="map-stop-title">До консультации</div>
+        <p>Открыл <strong>эту карту</strong> и вкладку <strong>Карта-пути-для-клиента.html</strong>. Просмотрел точку 2 — готов вести разговор.</p>
+      </div>
+    </div>
+
+    <!-- Точка 2: Во время консультации -->
+    <div class="map-stop during">
+      <div class="map-pin">2</div>
+      <div class="map-stop-content">
+        <div class="map-stop-title">Во время консультации · Заполняй по ходу</div>
+        <h3>Потребности</h3>
+        <p>Сфера/ниша: <input class="fill" type="text" placeholder="маркетинг, HR, продажи..."> Роль: <input class="fill" type="text" placeholder="менеджер, фрилансер..."></p>
+        <p>Процессы: <input class="fill wide" type="text" placeholder="что делает каждый день"></p>
+        <p>Что отнимает время: <input class="fill" type="text" placeholder="рутина"> Хочет автоматизировать: <input class="fill" type="text" placeholder="задача"></p>
+        <p>Уровень: не пробовал / пробовал / использует / хочет внедрить · Цель: время / качество / масштаб / обучение</p>
+        <h3>Профиль для карты клиента</h3>
+        <p>Профессия/роль: <input class="fill" type="text" placeholder="SMM-менеджер"> · Цель: заработок / оптимизация / масштаб / обучение с нуля <input class="fill" type="text" placeholder="уточнение"></p>
+        <p>Уровень: новичок / пробовал / использую · Акцент при показе карты: <input class="fill wide" type="text" placeholder="фазы 1 и 3 особенно важны"></p>
+        <h3>Где нейросети помогают</h3>
+        <table>
+          <tr><th>Задача</th><th>Как помогают</th></tr>
+          <tr><td>Тексты, посты</td><td>Генерация, доработка</td></tr>
+          <tr><td>Заявки, поддержка</td><td>Классификация, шаблоны</td></tr>
+          <tr><td>Документы</td><td>Поиск, изложение</td></tr>
+          <tr><td>Маркетинг</td><td>Персонализация, сценарии</td></tr>
+        </table>
+        <p>1–2 первые задачи для клиента: <input class="fill wide" type="text" placeholder="ChatGPT + контент-план"> Следующая цель: <input class="fill" type="text" placeholder="визуал, бот..."></p>
+      </div>
+    </div>
+
+    <!-- Точка 3: После консультации -->
+    <div class="map-stop after">
+      <div class="map-pin">3</div>
+      <div class="map-stop-content">
+        <div class="map-stop-title">После консультации</div>
+        <h3>Заметки (не отправлять клиенту)</h3>
+        <p>Продукты под клиента: <input class="fill wide" type="text" placeholder="курс, консультинг, бот..."></p>
+        <p>Следующий шаг: <input class="fill" type="text" placeholder="действие"> Не забыть: <input class="fill" type="text" placeholder="напомнить, отправить..."></p>
+        <h3>Заработок</h3>
+        <p>См. <strong>Заработок-по-услугам.md</strong>. Услуга: <input class="fill" type="text" placeholder="курс ИИ"> Заработок: <input class="fill" type="text" placeholder="₽"></p>
+        <div class="send-box">
+          <strong>Отправка клиенту</strong>
+          <ol>
+            <li>Открыть <strong>Карта-пути-для-клиента.html</strong></li>
+            <li>В блоке «Ваш профиль» подставить данные этого клиента</li>
+            <li>Печать → «Сохранить как PDF»</li>
+            <li>Отправить клиенту готовую индивидуальную PDF-карту</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="meta">Дата: <input class="fill" type="text" id="meta-date" style="min-width:80px"> · Клиент: <input class="fill wide" type="text" placeholder="ФИО / ник"> · Менеджер: <input class="fill" type="text" placeholder="ваше имя"></p>
+
+  <div class="no-print">
+    <button onclick="window.print()">Печать / PDF</button>
+  </div>
+  <script>
+    const d = new Date();
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    document.getElementById('meta-date').value = dd + '.' + mm + '.' + yyyy;
+  </script>
+</body>
+</html>
