@@ -1373,9 +1373,8 @@ function updateMap() {
 }
 
 function applyBadges() {
-  const { prof, level } = state;
+  const { prof } = state;
   const keyPhases  = prof  ? PROFILES.prof[prof].keyPhases      : [];
-  const donePhases = level ? PROFILES.level[level].donePhases   : [];
 
   for (let i = 1; i <= 5; i++) {
     const row   = document.getElementById('step' + i);
@@ -1387,10 +1386,6 @@ function applyBadges() {
     if (checkedPhases.has(i)) {
       badge.className = 'phase-badge badge-done';
       badge.textContent = '✓ Пройдено';
-    } else if (donePhases.includes(i)) {
-      row.classList.add('phase-done');
-      badge.className = 'phase-badge badge-done';
-      badge.textContent = '✓ Уже знаешь';
     } else if (keyPhases.includes(i)) {
       row.classList.add('phase-key');
       badge.className = 'phase-badge badge-key';
